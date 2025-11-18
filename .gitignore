@@ -1,23 +1,24 @@
-ÿþï»¿# Archivos compilados de Python
+
 *.pyc
 *.pyo
 *.pyd
 *.py[cod]
 
 
-# Directorios de cache de Python
+
 __pycache__/
 
 
-# Archivos de base de datos (SQLite, opcional)
+
 *.sqlite3
 db.sqlite3
 .sqlite3
-# Entornos virtuales
+.config
+
 venv/
 env/
 .venv/
+.env
 
-# Archivos de sistema
 .DS_Store
-Thumbs.db
+Thumbs.db
