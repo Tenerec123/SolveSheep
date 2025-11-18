@@ -9,6 +9,18 @@
          style="float: left; width: 25%; height: 100%; object-fit: cover; border-radius: 10px; margin: 10px; margin-bottom: 0;">
   {% endif %}
 
+  {% for type in prob.type_tags.all %}
+    <span class="badge" style="background-color: {{ type.color }}; color: white;">
+       {{ type.name }}
+    </span>
+  {% endfor %}
+
+  {% for dif in prob.dif_tags.all %}
+    <span class="badge" style="background-color: {{ dif.color }}; color: white;">
+      {{ dif.name }}
+    </span>
+  {% endfor %}
+
   <h1 class="mb-3">{{ prob.title }}</h1>
   <p class="fs-5">{{ prob.text }}</p>
   <br>
@@ -41,7 +53,7 @@
 
   <!-- Contenedor de soluciones -->
   <div id="solutions-container" {% if not solutions %}hidden{% endif %}>
-    {% for solution in prob.soluciones.all %}
+    {% for solution in prob.Solutions.all %}
       <p>{{ solution.text }}</p>
     {% endfor %}
   </div>

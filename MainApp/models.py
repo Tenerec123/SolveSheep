@@ -1,15 +1,23 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
+
+hex_color_validator = RegexValidator(
+    regex=r'^#([A-Fa-f0-9]{6})$',
+    message='Ingrese un color hexadecimal válido, por ejemplo: #ff0000'
+)
 # Create your models here.
 
 class TypeTag(models.Model):
     name = models.CharField(max_length=30)
+    color = models.CharField(max_length=7, validators=[hex_color_validator], default="#000000")
     def __str__(self):
         return self.name
     
 class DifTag(models.Model):
     name = models.CharField(max_length=30)
+    color = models.CharField(max_length=7, validators=[hex_color_validator], default="#000000")
     def __str__(self):
         return self.name
 
@@ -33,7 +41,7 @@ class Problem(models.Model):
 class Solution(models.Model):
     text = models.CharField(max_length=1000)
 
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='soluciones')
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='Solutions')
 
     def __str__(self):
         return self.text[:15]

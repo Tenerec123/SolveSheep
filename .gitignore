@@ -5,7 +5,7 @@ media/
 *.pyd
 *.py[cod]
 
-
+.vscode
 
 __pycache__/
 

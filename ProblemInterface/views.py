@@ -11,7 +11,6 @@ def Open_problem(request, prob_id):
     #     prob.likes_count = 0
     #     prob.save(update_fields=['likes_count'])
 
-    print("hellow")
     return render(request, 'interface.html', {
         'prob':get_object_or_404(Problem, id=prob_id)
     })
