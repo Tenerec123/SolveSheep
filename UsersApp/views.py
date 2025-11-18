@@ -4,6 +4,14 @@ from django.contrib.auth import logout, login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 # Create your views here.
 
+
+class CustomUserCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.help_text = None
+            field.widget.attrs.update({"class": "form-control"})
+
 def Logout(request):
     logout(request)
     return redirect('Main')
@@ -31,7 +39,7 @@ def Login(request):
 
 def Registro(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             usuario = form.save()
             login(request, usuario)
@@ -43,7 +51,7 @@ def Registro(request):
                 'form':form
             })
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
         return render(request, 'login.html', {
             'form':form
         })
