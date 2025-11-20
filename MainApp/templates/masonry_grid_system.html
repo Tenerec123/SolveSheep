@@ -1,8 +1,30 @@
 <div class="masonry-grid">
   {% block content %}  
-
   {% endblock %}
 </div>
+
+<style>
+/* Contenedor masonry */
+.masonry-grid {
+  display: grid;
+  grid-auto-rows: 10px;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+/* Cada item */
+.masonry-grid-item {
+  width: 100%;
+  grid-row-end: span var(--row-span, 1);
+}
+
+/* Caso especial: ancho máximo solo si hay 1 card */
+.masonry-grid-item.single-card {
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
 
 <script>
 function resizeMasonryGrid() {
@@ -10,19 +32,28 @@ function resizeMasonryGrid() {
   const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
   const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('gap'));
 
-  grid.querySelectorAll('.masonry-grid-item').forEach(item => {
+  const items = grid.querySelectorAll('.masonry-grid-item');
+  const gridWidth = grid.getBoundingClientRect().width;
+
+  items.forEach(item => {
     const card = item.querySelector('.card');
     if (!card) return;
+
     const itemHeight = card.getBoundingClientRect().height;
     const rowSpan = Math.ceil((itemHeight + rowGap) / (rowHeight + rowGap));
     item.style.setProperty('--row-span', rowSpan);
+
+    // Limpiar clase especial
+    item.classList.remove('single-card');
   });
+
+  // Caso extremo: solo 1 card
+  if (items.length === 1) {
+    items[0].classList.add('single-card');
+  }
 }
 
-// Recalcular al cargar y al redimensionar
-window.addEventListener('load', () => resizeMasonryGrid());
-window.addEventListener('resize', () => {
-  requestAnimationFrame(resizeMasonryGrid);
-});
-
+// Ejecutar al cargar y redimensionar
+window.addEventListener('load', resizeMasonryGrid);
+window.addEventListener('resize', () => requestAnimationFrame(resizeMasonryGrid));
 </script>
