@@ -23,6 +23,7 @@ def Search(request):
             )
 
         return render(request, 'search.html',{
+        'searched':True,
         'dif':dif,
         'types':type,
         'dif_selected':int(request.GET.get('Dif')),

@@ -2,7 +2,7 @@
 
 {% block content %}
 {% for prob in Problems %}
-    <div class="masonry-grid-item" style="max-width: 300px;">
+    <div class="masonry-grid-item">
       <a href="{% url 'Problem' prob.id %}" style="text-decoration: none;">
         <div class="card hover-effect">
         {% if prob.image %}
