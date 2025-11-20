@@ -7,7 +7,13 @@
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
   <div class="card shadow p-4" style="width: 380px;">
 
-    <h3 class="text-center mb-4">Crear cuenta</h3>
+    <h3 class="text-center mb-4">
+      {% if login %}
+        Login
+      {% else %}
+        Create your account
+      {% endif %}
+    </h3>
 
     <form method="post">
       {% csrf_token %}

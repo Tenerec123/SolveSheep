@@ -27,7 +27,7 @@ class Problem(models.Model):
     image = models.ImageField(blank=True, null=True, upload_to="problems/")
 
     type_tags = models.ManyToManyField(TypeTag)
-    dif_tags = models.ManyToManyField(DifTag)
+    dif_tag = models.ForeignKey(DifTag, null=True, blank=True, on_delete=models.SET_NULL)
 
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
     likes_count = models.IntegerField(default=0)

@@ -13,7 +13,7 @@ class ProblemInline(admin.TabularInline):
 
 class ProblemAdmin(admin.ModelAdmin):
     only_read = ("created", "updated")
-    list_filter = ("dif_tags", "type_tags")
+    list_filter = ("dif_tag", "type_tags")
     inlines = [SolutionInline,]
 
 class BundleAdmin(admin.ModelAdmin):

@@ -28,12 +28,14 @@ def Login(request):
                 messages.error(request, form.error_messages[msg])
                 print(msg)
             return render(request, 'login.html', {
-                'form':form
+                'form':form,
+                'login':True
             })
     else:
         form = AuthenticationForm()
         return render(request, 'login.html', {
-            'form':form
+            'form':form,
+            'login':True
         })
     
 

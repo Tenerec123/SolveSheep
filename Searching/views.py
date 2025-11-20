@@ -14,7 +14,7 @@ def Search(request):
         if request.GET.get('Type') != "0":
             probs = probs.filter(type_tags = request.GET.get('Type'))
         if request.GET.get('Dif') != "0":
-            probs = probs.filter(dif_tags = request.GET.get('Dif'))
+            probs = probs.filter(dif_tag = request.GET.get('Dif'))
         if request.GET.get('Text') != "":
             probs = probs.filter(
                 Q(title__icontains = request.GET.get('Text')) | 

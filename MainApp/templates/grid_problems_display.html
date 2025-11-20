@@ -2,13 +2,18 @@
 
 {% block content %}
 {% for prob in Problems %}
-    <div class="masonry-grid-item">
+    <div class="masonry-grid-item" style="max-width: 300px;">
       <a href="{% url 'Problem' prob.id %}" style="text-decoration: none;">
         <div class="card hover-effect">
         {% if prob.image %}
         <img src="{{prob.image.url}}" class="card-img-top">
         {% endif %}
         <div class="card-body">
+          
+          <span class="badge" style="background-color: {{ prob.dif_tag.color }}; color: white;">
+            {{ prob.dif_tag.name }}
+          </span>
+
           <h5 class="card-title">{{prob.title}}</h5>
           <p class="card-text">{{prob.text|truncatewords:30}}</p>
         </div>
