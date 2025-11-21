@@ -41,8 +41,10 @@
   background-color: hsla(0, 0%, 0%, .05);
   box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.3);
 }
-
 </style>
+
+{% block styles %}
+{% endblock %}
   
   </head>
   <body>  
@@ -59,6 +61,19 @@
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'Main' %} active {% endif %}" aria-current="page" href="{% url 'Main' %}">Main</a>
               </li>
+
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Overview
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="{% url 'Difs' %}">Difficulty Levels</a></li>
+                  <!-- <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li> -->
+                </ul>
+              </li>
+
               <!-- <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'Train' %} active {% endif %}" href="{% url 'Training' %}">Train</a> 
               </li> -->

@@ -8,3 +8,6 @@ def Main(request):
     return render(request,"landing.html", {
         'Problems':Problems
     })
+
+def Difs(request):
+    return render(request, 'difficulties.html')
