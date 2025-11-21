@@ -1,9 +1,12 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
+    <title>SolveSheep</title>
+   
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -11,7 +14,8 @@
       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
 
-    
+    <link rel="icon" href="{% static 'sheep.ico' %}" type="image/x-icon">
+
     <style>
 .masonry-grid {
   display: grid;
@@ -55,17 +59,17 @@
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'Main' %} active {% endif %}" aria-current="page" href="{% url 'Main' %}">Main</a>
               </li>
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'Train' %} active {% endif %}" href="{% url 'Training' %}">Train</a> 
-              </li>
+              </li> -->
               <!-- % url 'Train' % % url 'Account' %-->
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'Search' %} active {% endif %}" href="{% url 'Search' %}">Search</a>
               </li>
               {% if request.user.is_authenticated %}
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'Account' %} active {% endif %}" href="#">Account</a>
-              </li>
+              </li> -->
                 <a class="nav-link" href="{% url 'Logout' %}">Logout</a>
 
               {% else %}
@@ -87,10 +91,11 @@
 
     <footer>
       <div class=" bg-dark text-white p-3">
-        <p>Contact: gtrhgff</p>
+        <p>Contact: 
+          <a href="https://mail.google.com/mail/?view=cm&to=matenerec@gmail.com" target="_blank" class="btn btn-primary btn-sm">matenerec@gmail.com</a>
+        </p>
       </div>
     </footer>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   </body>
