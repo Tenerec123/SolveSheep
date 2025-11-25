@@ -26,7 +26,9 @@ class Problem(models.Model):
     text = models.CharField(max_length=1000, blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to="problems/")
 
-    type_tags = models.ManyToManyField(TypeTag)
+    video = models.URLField(blank=True, null=True)
+
+    type_tags = models.ManyToManyField(TypeTag, null=True, blank=True)
     dif_tag = models.ForeignKey(DifTag, null=True, blank=True, on_delete=models.SET_NULL)
 
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)

@@ -24,7 +24,7 @@
   <p class="fs-5">{{ prob.text }}</p>
   <br>
 
-  <button id="LikeBTN" {% if request.user.is_authenticated %} class="btn btn-success" {% else %} class ="btn btn-secondary" disabled {% endif %}>
+  <button id="LikeBTN" {% if request.user.is_authenticated %} class="btn btn-success btn-lg" {% else %} class ="btn btn-secondary" disabled {% endif %}>
     <span id="likes-emoji">
       {% if request.user in prob.likes.all %}
         ♥︎
@@ -38,13 +38,18 @@
   
 
   <!-- Botón único -->
-  <button {% if request.user.is_authenticated %} id="toggle-sol" class="btn btn-success" {% else %} class="btn btn-secondary" disabled {% endif %}>
-    Mostrar soluciones
+  <button {% if request.user.is_authenticated %} id="toggle-sol" class="btn btn-success btn-lg" {% else %} class="btn btn-secondary" disabled {% endif %}>
+    Show solutions
   </button>
+
+  {% if prob.video %}
+      <a href="{{prob.video}}" class="btn btn-primary btn-lg" tabindex="-1" role="button" target="_blank" aria-disabled="true">Video with the solution</a>
+  {% endif %}
+
   <br><br>
   {% if not request.user.is_authenticated %}
 
-    <a href="{% url 'Login' %}" class="btn btn-info" style="color: white;">
+    <a href="{% url 'Login' %}" class="btn btn-info btn-lg" style="color: white;">
      Not logged in? Click here to log in.
     </a>
 
@@ -71,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
     container.hidden = !container.hidden;
 
     // Cambiar texto del botón
-    button.textContent = container.hidden ? "Mostrar soluciones" : "Ocultar soluciones";
+    button.textContent = container.hidden ? "Show solutions" : "Hide solutions";
 
     // Registrar acción en backend
     fetch("{% url 'toggle_solutions' prob.id %}", {
