@@ -13,17 +13,12 @@
             <span class="badge" style="background-color: {{ prob.dif_tag.color }}; color: white; margin-right:8px;">
               {{ prob.dif_tag.name }}
             </span>
-
-
-
             {% for type in prob.type_tags.all %}
               <span class="badge" style="background-color: {{ type.color }}; color: white;">
                 {{ type.name }}
               </span>
             {% endfor %}
-
-          </div>
-          
+          </div>   
           <h5 class="card-title">{{prob.title}}</h5>
           <p class="card-text">{{prob.text|truncatewords:30}}</p>
         </div>

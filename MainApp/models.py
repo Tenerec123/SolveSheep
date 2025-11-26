@@ -28,10 +28,12 @@ class Problem(models.Model):
 
     video = models.URLField(blank=True, null=True)
 
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
     type_tags = models.ManyToManyField(TypeTag, null=True, blank=True)
     dif_tag = models.ForeignKey(DifTag, null=True, blank=True, on_delete=models.SET_NULL)
 
-    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+    likes = models.ManyToManyField(User, related_name='liked_problems', blank=True)
     likes_count = models.IntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -54,6 +56,11 @@ class Bundle(models.Model):
     image = models.ImageField(blank=True, null=True, upload_to="bundles/")
 
     problems = models.ManyToManyField(Problem, related_name="Problems", blank=True)
+
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    likes = models.ManyToManyField(User, related_name='liked_bundles', blank=True)
+    likes_count = models.IntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
