@@ -16,10 +16,10 @@ class TypeTag(models.Model):
         return self.name
     
 class DifTag(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.FloatField()
     color = models.CharField(max_length=7, validators=[hex_color_validator], default="#000000")
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 class Problem(models.Model):
     title = models.CharField(max_length=50)

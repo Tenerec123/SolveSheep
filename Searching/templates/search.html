@@ -4,46 +4,138 @@
 
 {% block content %}
 
-  {% if bool %}
-    wqrt4i5gkdfsñwqrwgr
-  {% endif %}
+
+<style>
+#range-container select {
+  position: relative; /* necesario para z-index */
+  z-index: 1;
+}
+
+#range-container select:focus {
+  z-index: 10; /* el select activo siempre encima */
+}
+</style>
 
   <!-- Barra de navegación -->
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <form method="get" action="">
-          <div class="input-group mb-3">
-            <select name="Dif" class="form-select" style="max-width: 150px;">
-              <option {% if not dif_selected %} selected {% endif %} value="0">All difficulties</option>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <form method="get" action="" id="Form">
+        <div class="input-group mb-3">
+          
+          <!-- Botón para activar rango -->
+          <button type="button" class="btn btn-secondary" id="range-btn">+ Range</button>
+
+          <!-- Select de dificultad individual -->
+          <select name="Dif" id="dif-select" class="form-select" style="max-width: 150px;">
+            <option {% if not dif_selected %} selected {% endif %} value="0">All difficulties</option>
+            {% for dif_type in dif %}
+              <option value="{{dif_type.id}}" {% if dif_selected == dif_type.id %} selected {% endif %}>
+                {{dif_type.name}}
+              </option>
+            {% endfor %}
+          </select>
+
+          <!-- Contenedor para selects de rango, oculto por defecto -->
+          <div id="range-container" class="d-none" style="display: flex; align-items: center;"">
+            <select name="Start_Dif" class="form-select rounded-0" style="min-width: 85px; max-width: 100px; overflow: visible;" >
+              <option value="0">Start</option>
               {% for dif_type in dif %}
-                <option  value="{{dif_type.id}}" {% if dif_selected == dif_type.id %} selected {% endif %} >{{dif_type.name}}</option>
+                <option value="{{dif_type.id}}" {% if start_dif_selected == dif_type.id %} selected {% endif %}>
+                  {{dif_type.name}}
+                </option>
               {% endfor %}
             </select>
-            <select name="Type" class="form-select" style="max-width: 150px;">
-              <option {% if not type_selected %} selected {% endif %} value="0">All types</option>
-              {% for type in types %}
-                <option value="{{type.id}}" {% if type_selected == type.id %} selected {% endif %}>{{type.name}}</option>
+            <select name="End_Dif" class="form-select rounded-0" style="max-width: 100px; display: inline;">
+              <option value="0">End</option>
+              {% for dif_type in dif %}
+                <option value="{{dif_type.id}}" {% if end_dif_selected == dif_type.id %} selected {% endif %}>
+                  {{dif_type.name}}
+                </option>
               {% endfor %}
             </select>
-            <input name="Text" type="text" class="form-control" {% if text_selected %} value="{{text_selected}}" {% endif %} placeholder="Search...">
-            <button class="btn btn-primary" type="submit">Search</button>
           </div>
-        </form>
-      </div>
+
+
+
+          <!-- Select de tipo -->
+          <select id="Type" name="Type" class="form-select" style="max-width: 150px;">
+            <option {% if not type_selected %} selected {% endif %} value="0">All types</option>
+            {% for type in types %}
+              <option value="{{type.id}}" {% if type_selected == type.id %} selected {% endif %}>{{type.name}}</option>
+            {% endfor %}
+          </select>
+
+          <!-- Input de búsqueda -->
+          <input name="Text" type="text" class="form-control" {% if text_selected %} value="{{text_selected}}" {% endif %} placeholder="Search...">
+
+
+          <input type="hidden" name="Range" id="RANGE_INPUT">
+
+
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+      </form>
     </div>
   </div>
+</div>
+
 
   {% if Problems %}
 
     {% include 'grid_problems_display.html' %}
 
-  {% elif searched  %}
+  {% elif range_alert %}
+
+  <div style="  display: flex; justify-content: center;">
+    <div class="alert alert-danger text-center" style="width: 25%;">Start and End difficulty must be selected.</div>
+  </div>
+
+  {% elif searched %}
 
     <div style="  display: flex; justify-content: center;">
       <div class="alert alert-danger text-center" style="width: 25%;">There is no coincidence</div>
     </div>
 
   {% endif %}
+
+<script>
+const Rbtn = document.getElementById('range-btn');
+const rangeContainer = document.getElementById('range-container');
+const difSelect = document.getElementById('dif-select');
+let range = false
+// Ver si la opción de rango viene activa desde Django
+const Range_Active = "{{ range }}";
+
+// Ejecutar al cargar si Range_Active
+if (Range_Active == "true") {
+  Range_OR_Diff();
+}
+
+function Range_OR_Diff() {
+  if (rangeContainer.classList.contains('d-none')) {
+    // Activar rango: mostrar selects de rango, ocultar select individual
+    Rbtn.textContent = "- Range";
+    rangeContainer.classList.remove('d-none');
+    difSelect.style.display = 'none';
+    range = true
+  } else {
+    // Desactivar rango: ocultar selects de rango, mostrar select individual
+    Rbtn.textContent = "+ Range";
+    rangeContainer.classList.add('d-none');
+    difSelect.style.display = 'inline-block';
+    range = false
+  }
+}
+// Asignar al click
+Rbtn.addEventListener('click', Range_OR_Diff);
+
+
+//Avisar de si es modo dif única o es por range
+document.getElementById("Form").addEventListener('submit', function(event) {
+  hiddenInput = document.getElementById("RANGE_INPUT")
+  hiddenInput.value = range; 
+});
+</script>
 
 {% endblock %}
