@@ -21,7 +21,7 @@
    
 
   <h1 class="mb-3">{{ prob.title }}</h1>
-  <p class="fs-5">{{ prob.text }}</p>
+  <p class="fs-5">{{ prob.text|linebreaksbr }}</p>
   <br>
 
   <button id="LikeBTN" {% if request.user.is_authenticated %} class="btn btn-success btn-lg" {% else %} class ="btn btn-secondary" disabled {% endif %}>
@@ -58,7 +58,7 @@
   <!-- Contenedor de soluciones -->
   <div id="solutions-container" {% if not solutions %}hidden{% endif %}>
     {% for solution in prob.Solutions.all %}
-      <p>{{ solution.text }}</p>
+      <p>{{ solution.text|linebreaksbr}}</p>
     {% endfor %}
   </div>
 </div>
