@@ -22,18 +22,16 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">{{ prob.title }}</h1>
     {% if prob.author %}
-        <h2 class="mb-0 text-end">
+        <a href="{% url 'UserInterface' prob.author %}">
+          <h2 class="mb-0 text-end">
             <span class="badge bg-secondary fs-6 p-2 fst-italic">
-                Author {{ prob.author }}
+                Author: {{ prob.author }}
             </span>
         </h2>
+        </a>
     {% endif %}
 </div>
 
-
-
-
-  
   <p class="fs-5">{{ prob.text|linebreaksbr }}</p>
   <br>
 

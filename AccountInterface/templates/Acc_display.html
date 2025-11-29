@@ -11,18 +11,7 @@
 
    
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0">{{ bund.title }}</h1>
-    {% if bund.author %}
-        <a href="{% url 'UserInterface' bund.author %}">
-          <h2 class="mb-0 text-end">
-            <span class="badge bg-secondary fs-6 p-2 fst-italic">
-                Author: {{ bund.author }}
-            </span>
-        </h2>
-        </a>
-    {% endif %}
-</div>
+  <h1 class="mb-3">{{ user.username }}</h1>
   <p class="fs-5">{{ bund.description }}</p>
   <br>
 
@@ -52,16 +41,17 @@
 <div style="clear: both;"></div>
 <br>
 
-<script>
+<!-- En un fututo puede que haya sistema de followers, por ahora no -->
+<!-- <script>
 document.addEventListener("DOMContentLoaded", function() {
   const LikeBTN = document.getElementById('LikeBTN')
 
   LikeBTN.addEventListener("click", function() {
 
-    fetch("{% url 'Like_Bundle' bund.id %}", {
+    fetch("{% url 'Like_Bundle' bund.id %", {
       method: "POST",
       headers: {
-        "X-CSRFToken": "{{ csrf_token }}",
+        "X-CSRFToken": "{{ csrf_token }",
         "Content-Type": "application/json"
       }
     })
@@ -75,5 +65,5 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
-</script>
+</script> -->
 {% endblock %}

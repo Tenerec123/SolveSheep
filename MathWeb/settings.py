@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'ProblemInterface',
     'Searching',
     'UsersApp',
-    'Training'
+    'Training',
+    'AccountInterface',
 ]
 
 MIDDLEWARE = [

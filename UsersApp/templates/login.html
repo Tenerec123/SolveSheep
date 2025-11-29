@@ -29,6 +29,16 @@
       <button class="btn btn-primary w-100">Registrarse</button>
     </form>
 
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
   </div>
 </div>
 

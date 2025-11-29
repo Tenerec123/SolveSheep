@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.models import User
 # Create your views here.
 
 
@@ -40,6 +41,7 @@ def Login(request):
     
 
 def Registro(request):
+
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -57,3 +59,4 @@ def Registro(request):
         return render(request, 'login.html', {
             'form':form
         })
+    
