@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
 from .forms import ProblemForm
 from .models import Problem, DifTag, TypeTag
 import os
@@ -28,6 +29,7 @@ def Add_JSON_probs(request):
                 title = prob['title'],
                 text = prob['text'],
                 video = prob['video'],
+                author = User.objects.get(username = prob['author']),
                 dif_tag = dif_tag,
             )
             for type_tag_str in prob['type_tags']:
