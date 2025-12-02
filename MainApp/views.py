@@ -9,7 +9,7 @@ import json
 def Main(request):
     Problems = Problem.objects.all()
     return render(request,"landing.html", {
-        'Problems':Problems
+        'Card_objs':Problems
     })
 
 def Difs(request):

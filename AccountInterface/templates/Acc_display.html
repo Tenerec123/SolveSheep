@@ -35,7 +35,9 @@
   {% endif %}
 
   <div>
-    {% include 'grid_problems_display.html' %}
+    {% if Card_objs %}
+      {% include 'grid_display.html' %}
+    {% endif %}
   </div>
 
 <div style="clear: both;"></div>

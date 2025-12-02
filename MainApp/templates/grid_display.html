@@ -1,0 +1,51 @@
+{% extends 'masonry_grid_system.html' %}
+
+{% block content %}
+
+<style>
+
+</style>
+
+{% for card_obj in Card_objs %}
+    <div class="masonry-grid-item">
+      {% if card_obj.class_name == "Problem" %}
+        <a href="{% url 'Problem' card_obj.id %}" style="text-decoration: none;">
+        <div class="card hover-effect" style=" overflow: hidden;">
+        {% if card_obj.image %}
+        <img src="{{card_obj.image.url}}" class="card-img-top">
+        {% endif %}
+        <div class="card-body">
+          <div>
+            <span class="badge" style="background-color: {{ card_obj.dif_tag.color }}; color: white; margin-right:8px;">
+              {{ card_obj.dif_tag.name }}
+            </span>
+            {% for type in card_obj.type_tags.all %}
+              <span class="badge" style="background-color: {{ type.color }}; color: white;">
+                {{ type.name }}
+              </span>
+            {% endfor %}
+          </div>   
+          <h5 class="card-title">{{card_obj.title}}</h5>
+          <p class="card-text">{{card_obj.text|truncatewords:30|linebreaks}}</p>
+        </div>
+      </div>
+      </a>
+      {% elif card_obj.class_name == "Bundle" %}
+        <div class="masonry-grid-item bundle-card">
+          <a href="{% url 'Bundle' card_obj.id %}" style="text-decoration: none;">
+            <div class="card hover-effect">
+              {% if card_obj.image %}
+                <img src="{{card_obj.image.url}}" class="card-img-top">
+              {% endif %}
+              <div class="card-body">  
+                <h5 class="card-title">{{card_obj.title}}</h5>
+                <p class="card-text">{{card_obj.description|truncatewords:30}}</p>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endif %}
+    </div> 
+{% endfor %}   
+
+{% endblock %}

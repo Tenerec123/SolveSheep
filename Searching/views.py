@@ -67,7 +67,7 @@ def Search(request):
         
         'type_selected':Type_idx,
         'text_selected':Text,
-        'Problems':probs,
+        'Card_objs':probs,
         'range': Range
     })
 

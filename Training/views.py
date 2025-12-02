@@ -5,7 +5,7 @@ from django.http import JsonResponse
 
 def Training_search(request):
     return render(request, 'training.html',{
-        "Bundles":Bundle.objects.all(),
+        "Card_objs":Bundle.objects.all()
     })
 
 def Open_bundle(request, bund_id):
@@ -16,7 +16,7 @@ def Open_bundle(request, bund_id):
     bund = get_object_or_404(Bundle, id=bund_id)
     return render(request, 'bundle_interface.html', {
         'bund':bund,
-        'Problems':bund.problems.all()
+        'Card_objs':bund.problems.all()
     })
 
 def Like_Unlike_Bundle(request, bund_id):
