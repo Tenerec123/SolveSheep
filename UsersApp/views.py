@@ -25,9 +25,7 @@ def Login(request):
             login(request, usuario) 
             return redirect('Main') 
         else:
-            for msg in form.error_messages:
-                messages.error(request, form.error_messages[msg])
-                print(msg)
+            messages.error(request, "Username and password don't match")  
             return render(request, 'login.html', {
                 'form':form,
                 'login':True
@@ -49,8 +47,10 @@ def Registro(request):
             login(request, usuario)
             return redirect('Main')
         else:
-            for msg in form.error_messages:
-                messages.error(request, form.error_messages[msg])
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, error)
+                    print(error)
             return render(request, 'login.html', {
                 'form':form
             })

@@ -3,12 +3,14 @@ from django.contrib.auth.models import User
 from .forms import ProblemForm
 from .models import Problem, DifTag, TypeTag
 import os
+import random
 import json
 
 # Create your views here.
 
 def Main(request):
-    Problems = Problem.objects.all()
+    Problems = list(Problem.objects.all())
+    random.shuffle(Problems)
     return render(request,"landing.html", {
         'Card_objs':Problems
     })
