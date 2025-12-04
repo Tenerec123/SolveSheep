@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.db.models import Q
-from MainApp.models import DifTag, TypeTag, Problem
+from MainApp.models import DifTag, TypeTag, Problem, Bundle
+from itertools import chain
+import random
 # Create your views here.
 
 def Search(request):
@@ -10,6 +12,7 @@ def Search(request):
 
     if request.GET.get('Dif'):
         probs = Problem.objects.all()
+        bunds = Bundle.objects.all()
 
         Type_idx = int(request.GET.get('Type'))
         Text = request.GET.get('Text')
@@ -55,6 +58,13 @@ def Search(request):
                 Q(title__icontains = Text) | 
                 Q(text__icontains = Text)
             )
+            bunds = bunds.filter(
+                Q(title__icontains = Text) | 
+                Q(description__icontains = Text)
+            )
+
+        card_objs =list(chain(probs, bunds))
+        random.shuffle(card_objs)
 
         return render(request, 'search.html',{
         'searched':True,
@@ -67,7 +77,7 @@ def Search(request):
         
         'type_selected':Type_idx,
         'text_selected':Text,
-        'Card_objs':probs,
+        'Card_objs':card_objs,
         'range': Range
     })
 

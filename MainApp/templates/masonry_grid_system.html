@@ -1,82 +1,49 @@
 <div class="masonry-grid">
   {% block content %}  
   {% endblock %}
+  <div style="clear: both;"></div>
+  <br>
 </div>
-
-<style>
-/* Contenedor masonry */
-.masonry-grid {
-  display: grid;
-  grid-auto-rows: 10px;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-}
-
-/* Cada item */
-.masonry-grid-item {
-  width: 100%;
-  grid-row-end: span var(--row-span, 1);
-}
-
-/* Caso especial: ancho máximo solo si hay 1 card */
-.masonry-grid-item.single-card {
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.masonry-grid-item.bundle-card .card {
-  background-color: #f9f7f1; /* color de fondo suave distinto */
-  border: 2px solid #f0c040; /* borde distintivo */
-}
-
-.masonry-grid-item.bundle-card .card-title {
-  font-weight: 700;
-  color: #d97706; /* naranja oscuro */
-}
-
-.masonry-grid-item.bundle-card .card-text {
-  color: #4b5563; /* gris medio */
-  font-size: 0.95rem;
-}
-
-/* Caso especial: solo 1 card */
-.masonry-grid-item.single-card {
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-</style>
+<div style="clear: both;"></div>
+<br>
+<script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
 
 <script>
+
 function resizeMasonryGrid() {
   const grid = document.querySelector('.masonry-grid');
-  const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
-  const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('gap'));
+  if (!grid) return;
 
+  const rowHeight = parseInt(getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+  const gap = parseInt(getComputedStyle(grid).getPropertyValue('gap'));
   const items = grid.querySelectorAll('.masonry-grid-item');
-  const gridWidth = grid.getBoundingClientRect().width;
 
   items.forEach(item => {
     const card = item.querySelector('.card');
     if (!card) return;
 
-    const itemHeight = card.getBoundingClientRect().height;
-    const rowSpan = Math.ceil((itemHeight + rowGap + 1) / (rowHeight + rowGap));
-
+    const height = card.getBoundingClientRect().height;
+    const rowSpan = Math.ceil((height + gap) / rowHeight);
     item.style.setProperty('--row-span', rowSpan);
-
-    // Limpiar clase especial
-    item.classList.remove('single-card');
   });
-
-  // Caso extremo: solo 1 card
-  if (items.length === 1) {
-    items[0].classList.add('single-card');
-  }
 }
 
-// Ejecutar al cargar y redimensionar
-window.addEventListener('load', resizeMasonryGrid);
-window.addEventListener('load', () => requestAnimationFrame(resizeMasonryGrid));
+// Recalcular cuando carguen TODAS las imágenes
+imagesLoaded('.masonry-grid', resizeMasonryGrid);
+
+// Recalcular cuando MathJax termine
+document.addEventListener("mathjax-rendered", resizeMasonryGrid);
+
+// Recalcular en resize
 window.addEventListener('resize', () => requestAnimationFrame(resizeMasonryGrid));
+
+document.addEventListener("DOMContentLoaded", resizeMasonryGrid);
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    resizeMasonryGrid();
+  }, 100); // 100ms = 0.1s
+});
+
 </script>
+

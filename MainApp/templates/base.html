@@ -16,18 +16,42 @@
     <link rel="icon" href="{% static 'sheep.ico' %}" type="image/x-icon">
 
     <style>
+
+/* Contenedor masonry */
 .masonry-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
-  gap: 1rem;
   grid-auto-rows: 10px;
+  gap: 0.04rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 
-
+/* Cada item */
 .masonry-grid-item {
-  display: flex;
-  flex-direction: column;
-  grid-row-end: span var(--row-span, 10);
+  padding: 10px;
+  width: 100%;
+  grid-row-end: span var(--row-span, 1);
+}
+
+.masonry-grid-item.bundle-card .card {
+  background-color: #f9f7f1; /* color de fondo suave distinto */
+  border: 2px solid #f0c040; /* borde distintivo */
+}
+
+.masonry-grid-item.bundle-card .card-title {
+  font-weight: 700;
+  color: #d97706; /* naranja oscuro */
+}
+
+.masonry-grid-item.bundle-card .card-text {
+  color: #4b5563; /* gris medio */
+  font-size: 0.95rem;
+}
+
+/* Caso especial: solo 1 card */
+.masonry-grid-item.single-card {
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .masonry-grid-item .card {
