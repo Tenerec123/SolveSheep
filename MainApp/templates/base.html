@@ -4,7 +4,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SolveSheep</title>
+    <meta name="keywords" content="SolveSheep, solve problems, problem database, olympiad training">
+    <meta name="description" content="SolveSheep: a web where you can search and solve problems by type and difficulty, see solutions, and create bundles for focused practice and olympiad training">
+    <title>SolveSheep | Math problem database</title>
    
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
@@ -64,18 +66,31 @@
   background-color: hsla(0, 0%, 0%, .05);
   box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.3);
 }
+h1{
+  margin-bottom: 0px;
+}
+h2{
+  margin-top: 0px;
+  font-size: .1em;
+}
+
 </style>
 
 {% block styles %}
 {% endblock %}
-  
-  </head>
+
+ </head>
+
+
   <body>  
 
     <header>
       <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">SolveSheep</a>
+          <div>
+            <h1 class="navbar-brand">SolveSheep</h1>
+            <h2 class="small text-muted">The math problem database</h2>
+          </div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>

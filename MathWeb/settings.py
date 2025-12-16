@@ -26,6 +26,7 @@ CSRF_TRUSTRD_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    "django.contrib.sites",
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -40,7 +41,14 @@ INSTALLED_APPS = [
     'UsersApp',
     'Training',
     'AccountInterface',
+
+    "django_check_seo",
+    'cms',
+    'menus',
+    'treebeard'
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

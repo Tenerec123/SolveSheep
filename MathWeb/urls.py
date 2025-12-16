@@ -11,7 +11,8 @@ urlpatterns = [
     path('search', include('Searching.urls')),
     path('authentication/', include('UsersApp.urls')),
     path('training/', include('Training.urls')),
-    path('account/', include("AccountInterface.urls"))
+    path('account/', include("AccountInterface.urls")),
+    path("django-check-seo/", include("django_check_seo.urls")),
 ]
 
 if settings.DEBUG:

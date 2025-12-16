@@ -12,8 +12,6 @@
 .lvl-4-0 { background: #D18F8F; color: white; }
 .lvl-4-5 { background: #C28DBE; color: white; }
 .lvl-5-0 { background: #A86F6F; color: white; }
-.lvl-6-0 { background: #7A6F9A; color: white; }
-.lvl-7-0 { background: #5A3F4F; color: white; }
 
 body { background: #fafafa; }
 
@@ -51,7 +49,7 @@ body { background: #fafafa; }
     border-radius: 6px;
 }
 
-/* Grid 2 columnas */
+/* Grid 2 columns */
 .grid-cols {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -59,83 +57,54 @@ body { background: #fafafa; }
     row-gap: 1rem;
 }
 
-<style>
 .difficulty-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas iguales */
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
 }
 
 .span-two-columns {
-    grid-column: span 2; /* nivel 7 ocupa ambas columnas */
+    grid-column: span 2; /* top level spans both columns */
 }
 
 @media (max-width: 768px) {
     .difficulty-grid {
-        grid-template-columns: 1fr; /* pasa a 1 columna en pantallas pequeñas */
+        grid-template-columns: 1fr; /* single column on small screens */
     }
     .span-two-columns {
-        grid-column: auto; /* se adapta a 1 columna */
+        grid-column: auto;
     }
 }
 </style>
 {% endblock %}
+
 {% block content %}
 <div class="container py-4">
-    <h3 class="mb-4">Difficulty scale 1.0 → 7.0 (paired columns)</h3>
+    <h3 class="mb-4">Difficulty scale 1.0 → 5.0</h3>
 
     <div class="difficulty-grid">
 
-        <!-- Nivel 1.0 -->
+        <!-- Level 1.0 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
                 <span class="badge-level lvl-1-0">1.0</span>
-                <span class="badge-topic">Basic</span>
-            </div>
-            <h5 class="mb-1">Elementary school basics</h5>
-            <p class="mb-0">
-                Basic arithmetic<br>
-                Simple geometric shapes<br>
-                Direct formula application
-            </p>
-        </div>
-
-        <!-- Nivel 1.5 -->
-        <div class="card difficulty-card p-3 hover-effect">
-            <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-1-5">1.5</span>
-                <span class="badge-topic">Intro</span>
-            </div>
-            <h5 class="mb-1">Introductory reasoning</h5>
-            <p class="mb-0">
-                Longer additions<br>
-                Very simple linear equations<br>
-                Area/perimeter problems<br>
-                Basic logic
-            </p>
-        </div>
-
-        <!-- Nivel 2.0 -->
-        <div class="card difficulty-card p-3 hover-effect">
-            <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-2-0">2.0</span>
-                <span class="badge-topic">Secondary</span>
+                <span class="badge-topic">Secondary School</span>
             </div>
             <h5 class="mb-1">Standard secondary school level</h5>
             <p class="mb-0">
                 General algebra<br>
-                Ratios, powers, common factorizations<br>
+                Ratios, powers, basic factorizations<br>
                 Plane geometry
             </p>
         </div>
 
-        <!-- Nivel 2.5 -->
+        <!-- Level 1.5 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-2-5">2.5</span>
-                <span class="badge-topic">Intermediate</span>
+                <span class="badge-level lvl-1-5">1.5</span>
+                <span class="badge-topic">Secondary Olympiad</span>
             </div>
-            <h5 class="mb-1">Lower intermediate / beginner contest</h5>
+            <h5 class="mb-1">Lower intermediate / local competitions</h5>
             <p class="mb-0">
                 Simple combinatorics<br>
                 Multi-step reasoning<br>
@@ -144,11 +113,11 @@ body { background: #fafafa; }
             </p>
         </div>
 
-        <!-- Nivel 3.0 -->
+        <!-- Level 2.0 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-3-0">3.0</span>
-                <span class="badge-topic">Pre-contest</span>
+                <span class="badge-level lvl-2-0">2.0</span>
+                <span class="badge-topic">Regional</span>
             </div>
             <h5 class="mb-1">Pre-contest / local competitions</h5>
             <p class="mb-0">
@@ -159,25 +128,25 @@ body { background: #fafafa; }
             </p>
         </div>
 
-        <!-- Nivel 3.5 -->
+        <!-- Level 2.5 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-3-5">3.5</span>
-                <span class="badge-topic">High pre-contest</span>
+                <span class="badge-level lvl-2-5">2.5</span>
+                <span class="badge-topic">Low National</span>
             </div>
             <h5 class="mb-1">High pre-contest / easy national contest</h5>
             <p class="mb-0">
                 Requires a trick<br>
                 Multi-step complex solutions<br>
-                Deep trig identities<br>
+                Deep trigonometric identities<br>
                 Elegant combinatorial reasoning
             </p>
         </div>
 
-        <!-- Nivel 4.0 -->
+        <!-- Level 3.0 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-4-0">4.0</span>
+                <span class="badge-level lvl-3-0">3.0</span>
                 <span class="badge-topic">National</span>
             </div>
             <h5 class="mb-1">National contest level</h5>
@@ -189,11 +158,11 @@ body { background: #fafafa; }
             </p>
         </div>
 
-        <!-- Nivel 4.5 -->
+        <!-- Level 3.5 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-4-5">4.5</span>
-                <span class="badge-topic">IMO easy</span>
+                <span class="badge-level lvl-3-5">3.5</span>
+                <span class="badge-topic">IMO Easy</span>
             </div>
             <h5 class="mb-1">IMO easy / strong national level</h5>
             <p class="mb-0">
@@ -203,13 +172,13 @@ body { background: #fafafa; }
             </p>
         </div>
 
-        <!-- Nivel 5.0 -->
+        <!-- Level 4.0 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-5-0">5.0</span>
-                <span class="badge-topic">IMO / Univ.</span>
+                <span class="badge-level lvl-4-0">4.0</span>
+                <span class="badge-topic">IMO / University</span>
             </div>
-            <h5 class="mb-1">IMO level / university standard</h5>
+            <h5 class="mb-1">IMO / university standard</h5>
             <p class="mb-0">
                 Very creative insight problems<br>
                 Complex number theory and combinatorics<br>
@@ -218,10 +187,10 @@ body { background: #fafafa; }
             </p>
         </div>
 
-        <!-- Nivel 6.0 -->
+        <!-- Level 4.5 -->
         <div class="card difficulty-card p-3 hover-effect">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-6-0">6.0</span>
+                <span class="badge-level lvl-4-5">4.5</span>
                 <span class="badge-topic">Graduate</span>
             </div>
             <h5 class="mb-1">Graduate (Master / early PhD) level</h5>
@@ -231,10 +200,10 @@ body { background: #fafafa; }
             </p>
         </div>
 
-        <!-- Nivel 7.0 (span 2 columnas) -->
+        <!-- Level 5.0 (span 2 columns) -->
         <div class="card difficulty-card p-3 hover-effect span-two-columns">
             <div class="d-flex align-items-center mb-2">
-                <span class="badge-level lvl-7-0">7.0</span>
+                <span class="badge-level lvl-5-0">7.0</span>
                 <span class="badge-topic">Research</span>
             </div>
             <h5 class="mb-1">Research / paper-level problems</h5>

@@ -17,7 +17,6 @@ def latex_truncate(text, max_words=30):
 
     # 1. Extraer bloques LaTeX
     blocks = LATEX_PATTERN.findall(text)
-
     # Insertamos marcadores temporales
     clean_text = LATEX_PATTERN.sub("<<<LATEX>>>", text)
 
