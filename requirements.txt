@@ -2,3 +2,4 @@ Django
 gunicorn
 whitenoise
 django-environ
+django_check_seo
