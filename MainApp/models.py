@@ -45,6 +45,12 @@ class Problem(models.Model):
     def class_name(self):
         return self.__class__.__name__
     
+    def delete(self, *args, **kwargs):
+        if self.image:
+            self.image.delete(save=False)
+        super().delete(*args, **kwargs)
+
+    
 class Solution(models.Model):
     text = models.CharField(max_length=1000)
 
@@ -73,3 +79,8 @@ class Bundle(models.Model):
     
     def class_name(self):
         return self.__class__.__name__
+    
+    def delete(self, *args, **kwargs):
+        if self.image:
+            self.image.delete(save=False)
+        super().delete(*args, **kwargs)
