@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib.auth.models import User
 from .forms import ProblemForm
 from .models import Problem, DifTag, TypeTag
@@ -7,6 +8,9 @@ import random
 import json
 
 # Create your views here.
+
+def ads_txt(request):
+    return HttpResponse("google.com, pub-1229341265329797, DIRECT, f08c47fec0942fa0", content_type="text/plain")
 
 def Main(request):
     Problems = list(Problem.objects.all())
