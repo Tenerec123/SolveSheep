@@ -6,44 +6,54 @@
 </div>
 <div style="clear: both;"></div>
 <br>
+
+<script>
+  function resizeMasonryGrid() {
+  requestAnimationFrame(() => {
+    const grid = document.querySelector('.masonry-grid');
+    if (!grid) return;
+
+    const rowHeight = parseInt(getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+    const gap = parseInt(getComputedStyle(grid).getPropertyValue('gap'));
+    const items = grid.querySelectorAll('.masonry-grid-item');
+
+    items.forEach(item => {
+      const card = item.querySelector('.card');
+      if (!card) return;
+
+      const height = card.offsetHeight;
+      const rowSpan = Math.ceil((height + gap) / rowHeight);
+      item.style.setProperty('--row-span', rowSpan);
+    });
+  });
+}
+window.MathJax = {
+  startup: {
+    pageReady: () => {
+      return MathJax.startup.defaultPageReady().then(() => {
+        resizeMasonryGrid();
+      });
+    }
+  }
+};
+</script>
 <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
 
 <script>
 
-function resizeMasonryGrid() {
-  const grid = document.querySelector('.masonry-grid');
-  if (!grid) return;
-
-  const rowHeight = parseInt(getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
-  const gap = parseInt(getComputedStyle(grid).getPropertyValue('gap'));
-  const items = grid.querySelectorAll('.masonry-grid-item');
-
-  items.forEach(item => {
-    const card = item.querySelector('.card');
-    if (!card) return;
-
-    const height = card.getBoundingClientRect().height;
-    const rowSpan = Math.ceil((height + gap) / rowHeight);
-    item.style.setProperty('--row-span', rowSpan);
-  });
+// Recalcular cuando carguen TODAS las imágenes
+const grid = document.querySelector('.masonry-grid');
+if (grid) {
+  imagesLoaded(grid, resizeMasonryGrid);
 }
 
-// Recalcular cuando carguen TODAS las imágenes
-imagesLoaded('.masonry-grid', resizeMasonryGrid);
-
-// Recalcular cuando MathJax termine
-document.addEventListener("mathjax-rendered", resizeMasonryGrid);
-
 // Recalcular en resize
-window.addEventListener('resize', () => requestAnimationFrame(resizeMasonryGrid));
-
+window.addEventListener('resize', resizeMasonryGrid);
 document.addEventListener("DOMContentLoaded", resizeMasonryGrid);
-
 window.addEventListener('load', () => {
   setTimeout(() => {
     resizeMasonryGrid();
   }, 100); // 100ms = 0.1s
 });
-
 </script>
 

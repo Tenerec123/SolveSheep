@@ -34,7 +34,7 @@
     </div>
 
   {% elif card_obj.class_name == "Bundle" %}
-    <div class="masonry-grid-item bundle-card">
+    <div class="masonry-grid-item bundle-card" style="overflow: hidden;">
       <a href="{% url 'Bundle' card_obj.id %}" style="text-decoration: none;">
         <div class="card hover-effect">
           {% if card_obj.image %}
