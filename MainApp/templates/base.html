@@ -18,63 +18,103 @@
 
     <link rel="icon" href="{% static 'sheep.ico' %}" type="image/x-icon">
 
-    <style>
-
-/* Contenedor masonry */
+<style>
+/* ===============================
+   Masonry Grid Container
+   =============================== */
 .masonry-grid {
   display: grid;
-  grid-auto-rows: 10px;
-  gap: 0.04rem;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-auto-rows: 10px; /* MUST match JS calculation */
+  gap: 0.04rem;
 }
 
-/* Cada item */
+/* ===============================
+   Masonry Grid Items
+   =============================== */
 .masonry-grid-item {
   padding: 10px;
   width: 100%;
   grid-row-end: span var(--row-span, 1);
+  box-sizing: border-box;
 }
 
-.masonry-grid-item.bundle-card .card {
-  background-color: #f9f7f1; /* color de fondo suave distinto */
-  border: 2px solid #f0c040; /* borde distintivo */
-}
-
-.masonry-grid-item.bundle-card .card-title {
-  font-weight: 700;
-  color: #d97706; /* naranja oscuro */
-}
-
-.masonry-grid-item.bundle-card .card-text {
-  color: #4b5563; /* gris medio */
-  font-size: 0.95rem;
-}
-
-/* Caso especial: solo 1 card */
+/* Centered single-card layout */
 .masonry-grid-item.single-card {
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
 }
 
+/* ===============================
+   Cards
+   =============================== */
 .masonry-grid-item .card {
-  width: 100%; /* ocupa todo el ancho de la columna */
-}
-.hover-effect{
-  transition: box-shadow .2s, background-color .2s;
-}
-.hover-effect:hover {
-  background-color: hsla(0, 0%, 0%, .05);
-  box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.3);
-}
-h1{
-  margin-bottom: 0px;
-}
-h2{
-  margin-top: 0px;
-  font-size: .1em;
+  width: 100%;
+  overflow: hidden; /* REQUIRED to contain LaTeX */
+  display: flex;
+  flex-direction: column;
 }
 
+/* ===============================
+   Images (CRITICAL FIX)
+   =============================== */
+.card-img-top {
+  width: 100%;
+  height: auto;
+  display: block;       /* removes inline gap */
+  object-fit: contain;  /* prevents cropping */
+}
+
+/* ===============================
+   Card Body / LaTeX Safety
+   =============================== */
+.card-body {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ===============================
+   Bundle Styling
+   =============================== */
+.masonry-grid-item.bundle-card .card {
+  background-color: #f9f7f1;
+  border: 2px solid #f0c040;
+}
+
+.masonry-grid-item.bundle-card .card-title {
+  font-weight: 700;
+  color: #d97706;
+}
+
+.masonry-grid-item.bundle-card .card-text {
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+/* ===============================
+   Hover Effects
+   =============================== */
+.hover-effect {
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.hover-effect:hover {
+  background-color: hsla(0, 0%, 0%, 0.05);
+  box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ===============================
+   Typography
+   =============================== */
+h1 {
+  margin-bottom: 0;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 0.8rem;
+}
 </style>
 
 {% block styles %}
