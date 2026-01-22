@@ -36,7 +36,7 @@
     </span>
     <span id="likes-count">{{bund.likes_count}}</span>
   </button>
-
+  <a href="{% url 'Create_Problem' bund.id %}" id="LikeBTN" class="btn btn-success btn-lg">Add problem</a>
 
   <br><br>
   {% if not request.user.is_authenticated %}

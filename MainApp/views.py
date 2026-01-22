@@ -8,7 +8,6 @@ import random
 import json
 
 # Create your views here.
-
 def ads_txt(request):
     return HttpResponse("google.com, pub-1229341265329797, DIRECT, f08c47fec0942fa0", content_type="text/plain")
 

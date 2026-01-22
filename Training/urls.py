@@ -5,5 +5,6 @@ urlpatterns = [
     path('', Training_search, name="Training"),
     path("bundle/<int:bund_id>/", Open_bundle, name="Bundle"),
     path("like_bundle/<int:bund_id>/", Like_Unlike_Bundle, name="Like_Bundle"),
+    path("create_problem/<int:bund_id>/", Create_AI_Problem, name="Create_Problem"),
     # path('base', Base, name="Base"),
 ]
