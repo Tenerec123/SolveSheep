@@ -4,3 +4,6 @@ whitenoise
 django-environ
 django_check_seo
 google-genai
+celery
+redis
+django-celery-results

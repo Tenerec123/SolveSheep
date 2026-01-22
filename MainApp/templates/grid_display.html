@@ -2,7 +2,7 @@
 {% load latex_safe_truncate %}
 {% block content %}
 
-{% for card_obj in Card_objs %}
+{% for card_obj in Card_objs|slice:":80" %}
   {% if card_obj.class_name == "Problem" %}
     <div class="masonry-grid-item">
       <a href="{% url 'Problem' card_obj.id %}" style="text-decoration: none;">

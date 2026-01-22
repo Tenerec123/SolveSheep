@@ -3,31 +3,36 @@ from django.urls import reverse
 from MainApp.models import Bundle, Problem, User, DifTag, TypeTag
 from django.http import JsonResponse
 from google import genai
-import os
-import json
-import environ
 from django.conf import settings
+import threading
+import json
 import re
 
-
-
-def Normalize(texto: str) -> str:
-    # 1. Reemplazar salto de línea real o marcador por \n literal
-    texto = texto.replace("{ç}", "\\n")  # si usas marcador
-
-    # 2. Normalizar backslashes
-    def reemplazo(match):
-        siguiente = match.group(2)
-        if siguiente == "n":
-            return "\\n"  # un backslash literal
-        else:
-            return "\\\\" + siguiente  # doble backslash para LaTeX/otros
-
-    return re.sub(r"(\\+)(.)", reemplazo, texto)
-
-
-# Create your views here.
-
+def Add_Problems(bund_id,Problems_json):
+    print(Problems_json)
+    try:
+        data = json.loads(Problems_json)
+    except Exception as e:
+        print(e)
+        return False
+    Bund= Bundle.objects.get(id=bund_id)
+    for prob in data:
+    # Usamos update_or_create con title como criterio
+        new_problem, created = Problem.objects.update_or_create(
+            title=prob['title'],  # <-- criterio de búsqueda
+            defaults={
+                'text': prob['text'],
+                'video': prob['video'],
+                'author': User.objects.get(username=prob['author']),
+                'dif_tag': DifTag.objects.get(name=prob['dif_tag']),
+                
+            }
+        )
+        new_problem.type_tags.set([TypeTag.objects.get(name=tt) for tt in prob['type_tags']])
+        Bund.problems.add(new_problem)
+        Bund.relodeable = True
+        Bund.save(update_fields=["relodeable"])
+    return True
 def Prompt(Amount, bund_id):
     Bund = Bundle.objects.get(id=bund_id)
     Bundle_description = Bund.description
@@ -50,6 +55,7 @@ def Prompt(Amount, bund_id):
     "author": "SolveSheep"
     }
     REQUIRED FORMATTING
+    The respons must start at [ and end at ]. There must not be anything before [ or after ] 
     Mathematical expressions must use LaTeX:
     - Inline: \\( ... \\) and Display: $$ ... $$
     Line breaks inside the "text" value must be """+r"{ç}"+"""
@@ -78,29 +84,34 @@ def Prompt(Amount, bund_id):
     Do NOT repeat identical templates with trivial changes.
     VARIABLE USER REQUEST
     """+f"Number of problems: {Amount}\nDescription: {Bundle_description}\nTitles of current problems (don't repeat): {Titles}"
+def Normalize(texto: str) -> str:
+    # 1. Reemplazar salto de línea real o marcador por \n literal
+    texto = texto.replace("{ç}", "\\n")  # si usas marcador
 
-def Add_Problems(bund_id,Problems_json):
-    try:
-        data = json.loads(Problems_json)
-    except Exception as e:
-        print(e)
-        return False
-    Bund= Bundle.objects.get(id=bund_id)
-    for prob in data:
-    # Usamos update_or_create con title como criterio
-        new_problem, created = Problem.objects.update_or_create(
-            title=prob['title'],  # <-- criterio de búsqueda
-            defaults={
-                'text': prob['text'],
-                'video': prob['video'],
-                'author': User.objects.get(username=prob['author']),
-                'dif_tag': DifTag.objects.get(name=prob['dif_tag']),
-                
-            }
-        )
-        new_problem.type_tags.set([TypeTag.objects.get(name=tt) for tt in prob['type_tags']])
-        Bund.problems.add(new_problem)
-    return True
+    # 2. Normalizar backslashes
+    def reemplazo(match):
+        siguiente = match.group(2)
+        if siguiente == "n":
+            return "\\n"  # un backslash literal
+        else:
+            return "\\\\" + siguiente  # doble backslash para LaTeX/otros
+
+    return re.sub(r"(\\+)(.)", reemplazo, texto)
+
+# Create your views here.
+
+def Ready_Check(request, bund_id):
+    bund = Bundle.objects.get(id=bund_id)
+    if not bund.needs_reload:
+        return JsonResponse({"ready":False, "retry":False})
+
+    Response = bund.relodeable
+    if Response:
+        bund.relodeable = False
+        bund.needs_reload = False
+        bund.save(update_fields=["relodeable", "needs_reload"])
+    return JsonResponse({"ready":Response, "retry":not Response})
+    
 
 def Training_search(request):
     return render(request, 'training.html',{
@@ -144,15 +155,28 @@ def Like_Unlike_Bundle(request, bund_id):
         'liked':liked
     })
 
-def Create_AI_Problem(request, bund_id):
+def call_ai_api(bund_id):
+    print("API_CALLED")
+    B = Bundle.objects.get(id= bund_id)
+    B.needs_reload = True
+    B.save(update_fields=["needs_reload"])
+    print("API_MID_1")
     client = genai.Client(api_key=settings.AI_KEY)
     response = client.models.generate_content(
-        model="gemini-3-flash-preview",
-        contents=Prompt(1, bund_id)
+        model="gemini-2.5-flash",
+        contents=Prompt(20, bund_id),
     )
-    print(Normalize(response.text))
-    print(Add_Problems(bund_id,Normalize(response.text)))
-    url = reverse('Bundle', kwargs={'bund_id': bund_id})
-    return redirect(url)
+    print("API_MID_2")
+    problems = Normalize(response.text)
+    Add_Problems(bund_id, problems)
+    print("API_END")
+
+
+
+def Create_AI_Problem(request, bund_id):
+    thread = threading.Thread(target=lambda:call_ai_api(bund_id))
+    thread.start()
+    
+    return redirect(reverse("Bundle", kwargs={"bund_id": bund_id}))
         
     

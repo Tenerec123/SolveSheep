@@ -74,6 +74,9 @@ class Bundle(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    needs_reload = models.BooleanField(default=False)
+    relodeable = models.BooleanField(default=False)
+
     def __str__(self):
         return self.title
     
