@@ -6,9 +6,9 @@ from google import genai
 import os
 import json
 import environ
-env = environ.Env(DEBUG=(bool, False))
+from django.conf import settings
 import re
-AI_KEY = env("GEMINI_API_KEY")
+
 
 
 def Normalize(texto: str) -> str:
@@ -145,7 +145,7 @@ def Like_Unlike_Bundle(request, bund_id):
     })
 
 def Create_AI_Problem(request, bund_id):
-    client = genai.Client(api_key=AI_KEY)
+    client = settings.AI_KEY
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
         contents=Prompt(1, bund_id)
