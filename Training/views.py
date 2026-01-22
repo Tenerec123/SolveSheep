@@ -145,7 +145,7 @@ def Like_Unlike_Bundle(request, bund_id):
     })
 
 def Create_AI_Problem(request, bund_id):
-    client = settings.AI_KEY
+    client = genai.Client(api_key=settings.AI_KEY)
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
         contents=Prompt(1, bund_id)
