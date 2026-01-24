@@ -6,9 +6,7 @@
 .vscode
 
 __pycache__/
-
-
-*.json
+ZZ_newprobs.json
 .config
 
 venv/
