@@ -7,3 +7,5 @@ google-genai
 celery
 redis
 django-celery-results
+psycopg[binary]
+dj-database-url
