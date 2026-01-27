@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block styles %}
+<style>
+#editor {
+  border: 1px solid #ccc;
+  min-height: 120px;
+  padding: 10px;
+}
+
+.math-wrapper {
+  display: inline-block;
+  margin: 0 4px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.math-wrapper:focus {
+  outline: 2px solid #007bff;
+}
+</style>
+{% endblock %}
+{% block content %}
+<br><br>
+<form method="post" action="{% url 'SendSolution' prob_id %}">
+    {% csrf_token %}
+  <button type="button" onclick="insertMath()" class="btn btn-success">Insertar fórmula</button>
+    <br><br>
+  <div id="editor" contenteditable="true">
+    Escribe el enunciado aquí
+  </div>
+
+  <input type="hidden" name="solution" id="contenido">
+
+  <br>
+  <button type="submit">Guardar</button>
+</form>
+
+<script src="https://unpkg.com/mathlive"></script>
+<script>
+const editor = document.getElementById("editor");
+const hidden = document.getElementById("contenido");
+
+function insertMath() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+
+  // VERIFICAR que el cursor está dentro del editor
+  const range = sel.getRangeAt(0);
+  if (!editor.contains(range.startContainer)) {
+    // no hacer nada si está fuera
+    return;
+  }
+
+  const wrapper = document.createElement("span");
+  wrapper.className = "math-wrapper";
+  wrapper.contentEditable = "false";
+  wrapper.tabIndex = 0;
+
+  const mf = document.createElement("math-field");
+  mf.value = "";
+
+  wrapper.appendChild(mf);
+
+  insertNode(wrapper);
+  insertNode(document.createTextNode("\u200B"));
+  sync();
+  mf.focus();
+}
+
+
+
+function insertNode(node) {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  range.deleteContents();
+  range.insertNode(node);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+// borrar bloque con backspace
+editor.addEventListener("keydown", e => {
+  if (e.key === "Backspace") {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+
+    const node = sel.anchorNode;
+    if (node.previousSibling?.classList?.contains("math-wrapper")) {
+      e.preventDefault();
+      node.previousSibling.remove();
+      sync();
+    }
+  }
+});
+
+// serializar texto + latex
+function sync() {
+  let result = "";
+
+  editor.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      result += node.textContent.replace("\u200B", "");
+    } else if (node.classList?.contains("math-wrapper")) {
+      const latex = node.querySelector("math-field").getValue("latex");
+      result += `$${latex}$`;
+    }
+  });
+
+  hidden.value = result;
+}
+
+editor.addEventListener("input", sync);
+editor.addEventListener("blur", sync);
+</script>
+
+{% endblock %}

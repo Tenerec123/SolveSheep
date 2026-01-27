@@ -77,6 +77,13 @@
       </h2>
       <br>
       <p>{{ solution.text|linebreaksbr}}</p>
+
+    {% empty %}
+
+    <a href="{% url 'SendSolution' prob.id %}" class="btn btn-secondary btn-lg" style="color: white;">
+     There is no solution yet. Click and be the first to solve it.
+    </a>
+
     {% endfor %}
   </div>
 </div>

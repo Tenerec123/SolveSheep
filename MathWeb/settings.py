@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'UsersApp',
     'Training',
     'AccountInterface',
+    'UserContentCreation',
 
     "django_check_seo",
     'cms',
@@ -169,3 +170,14 @@ else:
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
 
+# settings.py
+
+# Para enviar correos reales vía Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True  # importante para seguridad
+
+EMAIL_HOST_USER = 'solvesheep@gmail.com'        # tu cuenta de Gmail
+EMAIL_HOST_PASSWORD = 'vjqrypnxvsulzmbu'      # la App Password de 16 caracteres
