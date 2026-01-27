@@ -40,7 +40,7 @@ def Prompt(Amount, bund_id):
     return """
     You are a mathematical problem generator for the SolveSheep database. Produce output exactly as specified below; do NOT add anything else.
     OUTPUT FORMAT (MANDATORY)
-    Output MUST be a JSON array of objects.
+    Output MUST be a JSON array of objects, anything else, the first character must be one [ and the last ] NO MORE
     Do NOT include any id field.
     All text MUST be written in ENGLISH.
     Do NOT add explanations, comments, or extra text outside the JSON.
@@ -66,6 +66,7 @@ def Prompt(Amount, bund_id):
     ALLOWED type_tags (use only these; 1–3 tags per problem)
     ["Algebra","Calculus","Number Theory","Geometry","Probability","Statistics","Combinatorics","Trigonometry","Inequalities"]
     Put for each backslash put only one literal backslash (\\)
+    All double quotes inside JSON strings must be properly escaped using \" and must not use \\\".
     DIFFICULTY (dif_tag)
     Use exactly ONE decimal string (e.g. "1.0"). Choose the most appropriate:
     "1.0" basic secondary school
