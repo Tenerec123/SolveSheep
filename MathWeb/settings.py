@@ -180,4 +180,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True  # importante para seguridad
 
 EMAIL_HOST_USER = 'solvesheep@gmail.com'        # tu cuenta de Gmail
-EMAIL_HOST_PASSWORD = 'vjqrypnxvsulzmbu'      # la App Password de 16 caracteres
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")      # la App Password de 16 caracteres
