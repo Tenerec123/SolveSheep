@@ -9,3 +9,4 @@ redis
 django-celery-results
 psycopg[binary]
 dj-database-url
+resend
