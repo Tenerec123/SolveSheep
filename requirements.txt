@@ -10,3 +10,4 @@ django-celery-results
 psycopg[binary]
 dj-database-url
 resend
+django-anymail[resend]
