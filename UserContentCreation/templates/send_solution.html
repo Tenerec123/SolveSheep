@@ -19,13 +19,31 @@
 .math-wrapper:focus {
   outline: 2px solid #007bff;
 }
+math-field {
+  min-width: 150px; /* Tamaño inicial cómodo para un par de números */
+  padding: 2px 5px;
+  background: transparent;
+  border: 1px solid #ddd; /* Opcional: un borde sutil para que se vea el "hueco" */
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+/* Si es modo display, que sea un poco más ancho por defecto */
+
+.math-wrapper.display {
+  display: block;
+  text-align: center;
+  margin: 10px 0;
+  background: #f0f7ff; /* Un color ligeramente distinto para diferenciarlas */
+}
 </style>
 {% endblock %}
 {% block content %}
 <br><br>
 <form method="post" action="{% url 'SendSolution' prob_id %}">
     {% csrf_token %}
-  <button type="button" onclick="insertMath()" class="btn btn-success">Insert formula</button>
+  <button type="button" onclick="insertMath('inline')" class="btn btn-success">Insert inline formula</button>
+  <button type="button" onclick="insertMath('display')" class="btn btn-success">Insert display formula</button>
     <br><br>
   <div id="editor" contenteditable="true">
     Write the solution here:
@@ -42,7 +60,7 @@
 const editor = document.getElementById("editor");
 const hidden = document.getElementById("contenido");
 
-function insertMath() {
+function insertMath(mode) {
   const sel = window.getSelection();
   if (!sel.rangeCount) return;
 
@@ -54,7 +72,8 @@ function insertMath() {
   }
 
   const wrapper = document.createElement("span");
-  wrapper.className = "math-wrapper";
+  wrapper.classList.add("math-wrapper")
+  wrapper.classList.add(mode)
   wrapper.contentEditable = "false";
   wrapper.tabIndex = 0;
 
@@ -68,8 +87,6 @@ function insertMath() {
   sync();
   mf.focus();
 }
-
-
 
 function insertNode(node) {
   const sel = window.getSelection();
@@ -106,7 +123,12 @@ function sync() {
       result += node.textContent.replace("\u200B", "");
     } else if (node.classList?.contains("math-wrapper")) {
       const latex = node.querySelector("math-field").getValue("latex");
-      result += `$${latex}$`;
+      if (node.classList?.contains("inline")){
+        result += `\\(${latex}\\)`;
+      } else{
+        result += `$$${latex}$$`;
+      }
+      
     }
   });
 

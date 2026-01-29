@@ -3,24 +3,30 @@ from django.core.mail import send_mail
 import threading
 from django.core.mail import send_mail
 from django.conf import settings
-from django.utils.encoding import force_str
-import socket
-from django.core.mail import get_connection
 import resend
+from MainApp.models import Problem, Solution
 
 resend.api_key = settings.RESEND_API_KEY
 
 
-def enviar_email_async(prob_id, msg):
+def send_email_and_save_solution(prob_id, msg):
     r = resend.Emails.send({
   "from": "onboarding@resend.dev",
   "to": "solvesheep@gmail.com",
   "subject": f"Solution to problem {prob_id}",
   "html": msg
     })
+
+    Solution.objects.create(
+        text=msg,
+        problem=Problem.objects.get(id=prob_id),
+    )
+
+
 def SendSolutionToVerificate(request, prob_id):
     if request.method == "GET":
         return render(request, "send_solution.html", {"prob_id":prob_id})
-    thread = threading.Thread(target=lambda:enviar_email_async(prob_id,request.POST.get("solution", "ERROR")))
+    thread = threading.Thread(target=lambda:send_email_and_save_solution(prob_id,request.POST.get("solution", "ERROR")))
     thread.start()
+
     return redirect('Problem', prob_id=prob_id)
