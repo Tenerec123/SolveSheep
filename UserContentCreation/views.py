@@ -8,7 +8,7 @@ import socket
 from django.core.mail import get_connection
 import resend
 
-resend.api_key = "re_SeHqnkrz_6PUxWzgsMkMEwhtb2xZ25Wf4"
+resend.api_key = settings.RESEND_API_KEY
 
 
 def enviar_email_async(prob_id, msg):

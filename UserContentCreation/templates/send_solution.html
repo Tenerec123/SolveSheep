@@ -25,16 +25,16 @@
 <br><br>
 <form method="post" action="{% url 'SendSolution' prob_id %}">
     {% csrf_token %}
-  <button type="button" onclick="insertMath()" class="btn btn-success">Insertar fórmula</button>
+  <button type="button" onclick="insertMath()" class="btn btn-success">Insert formula</button>
     <br><br>
   <div id="editor" contenteditable="true">
-    Escribe el enunciado aquí
+    Write the solution here:
   </div>
 
   <input type="hidden" name="solution" id="contenido">
 
   <br>
-  <button type="submit">Guardar</button>
+  <button type="submit">Send</button>
 </form>
 
 <script src="https://unpkg.com/mathlive"></script>
