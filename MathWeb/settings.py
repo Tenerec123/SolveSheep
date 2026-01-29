@@ -173,3 +173,4 @@ else:
 # settings.py
 
 RESEND_API_KEY = env("RESEND_API_KEY")
+MAIN_URL = env("MAIN_URL")

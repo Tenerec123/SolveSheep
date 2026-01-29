@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse
-from MainApp.models import Problem
+from MainApp.models import Problem, Solution
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -10,9 +10,10 @@ def Open_problem(request, prob_id):
     # for prob in Problem.objects.all():
     #     prob.likes_count = 0
     #     prob.save(update_fields=['likes_count'])
-
+    prob = get_object_or_404(Problem, id=prob_id)
     return render(request, 'interface.html', {
-        'prob':get_object_or_404(Problem, id=prob_id)
+        'prob':prob,
+        'solutions':Solution.objects.filter(problem=prob, accepted=True),
     })
 
 @csrf_exempt

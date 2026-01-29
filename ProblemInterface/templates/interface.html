@@ -68,11 +68,11 @@
 
   <!-- Contenedor de soluciones -->
   <div id="solutions-container" {% if not solutions %}hidden{% endif %}>
-    {% for solution in prob.Solutions.all %}
+    {% for solution in solutions %}
       <h2 class="mb-0">
         <span class="badge bg-secondary fs-6 p-2 fst-italic">
         
-          Author {{ prob.author }}
+          Author {{ solution.author }}
         </span>
       </h2>
       <br>
