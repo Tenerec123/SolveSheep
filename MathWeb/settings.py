@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     
     
     'MainApp',
-    'ProblemDisplayer',
     'ProblemInterface',
     'Searching',
     'UsersApp',
