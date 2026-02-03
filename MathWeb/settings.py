@@ -5,7 +5,7 @@ import environ
 import dj_database_url
 import os
 env = environ.Env(DEBUG=(bool, False))
-
+AUTH_USER_MODEL = 'UsersApp.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'UserContentCreation',
 
     "django_check_seo",
-    'cms',
+    # 'cms',
     'menus',
     'treebeard'
 ]

@@ -1,6 +1,6 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from django.urls import reverse
-from MainApp.models import Bundle, Problem, User, DifTag, TypeTag
+from MainApp.models import Bundle, Problem, DifTag, TypeTag
 from django.http import JsonResponse
 from google import genai
 from django.conf import settings
@@ -23,7 +23,7 @@ def Add_Problems(bund_id,Problems_json):
             defaults={
                 'text': prob['text'],
                 'video': prob['video'],
-                'author': User.objects.get(username=prob['author']),
+                'author': settings.AUTH_USER_MODEL.objects.get(username=prob['author']),
                 'dif_tag': DifTag.objects.get(name=prob['dif_tag']),
                 
             }

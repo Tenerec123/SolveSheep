@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.core.validators import RegexValidator
 
 hex_color_validator = RegexValidator(
@@ -28,12 +28,12 @@ class Problem(models.Model):
 
     video = models.URLField(blank=True, null=True)
 
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
-    type_tags = models.ManyToManyField(TypeTag, null=True, blank=True)
+    type_tags = models.ManyToManyField(TypeTag, blank=True)
     dif_tag = models.ForeignKey(DifTag, null=True, blank=True, on_delete=models.SET_NULL)
 
-    likes = models.ManyToManyField(User, related_name='liked_problems', blank=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_problems', blank=True)
     likes_count = models.IntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -58,7 +58,7 @@ class Solution(models.Model):
 
     accepted = models.BooleanField(default=False)
 
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     def __str__(self):
         return self.text[:15]
 
@@ -69,9 +69,9 @@ class Bundle(models.Model):
 
     problems = models.ManyToManyField(Problem, related_name="Problems", blank=True)
 
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
-    likes = models.ManyToManyField(User, related_name='liked_bundles', blank=True)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_bundles', blank=True)
     likes_count = models.IntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)

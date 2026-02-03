@@ -1,17 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import logout, login
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import CustomUserCreationForm, CustomUserChangeForm
+from MainApp.models import *
+from itertools import chain
+from .models import User
+import random
 # Create your views here.
-
-
-class CustomUserCreationForm(UserCreationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.help_text = None
-            field.widget.attrs.update({"class": "form-control"})
 
 def Logout(request):
     logout(request)
@@ -37,7 +33,6 @@ def Login(request):
             'login':True
         })
     
-
 def Registro(request):
 
     if request.method == 'POST':
@@ -60,3 +55,13 @@ def Registro(request):
             'form':form
         })
     
+def User_Interface(request, username):
+    user = User.objects.get(username=username)
+    problems = Problem.objects.filter(author=user)
+    bundles = Bundle.objects.filter(author=user)
+    GENERAL =list(chain(problems.all(), bundles.all()))
+    random.shuffle(GENERAL)
+    return render(request,"Acc_display.html", {
+        "profile_user":user,
+        "Card_objs":GENERAL,
+    })
