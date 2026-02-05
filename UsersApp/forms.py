@@ -26,6 +26,7 @@ class CustomUserCreationForm(UserCreationForm):
     # validados automáticamente por Django.
 
 class CustomUserChangeForm(UserChangeForm):
+    password = None
     """
     Este formulario se usa para editar usuarios existentes (normalmente en el Admin).
     """
@@ -44,4 +45,4 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
         # Aquí puedes poner todos los campos que quieras que sean editables
-        fields = ('email', 'username', 'is_active', 'is_staff')
+        fields = ('email', 'username',)

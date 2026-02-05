@@ -9,9 +9,11 @@
          style="float: left; width: 25%; height: 100%; object-fit: cover; border-radius: 10px; margin: 10px; margin-bottom: 0;">
   {% endif %}
 
-   
+   {% if profile_user == request.user %}
+    <a class="btn btn-success" href="{% url 'EditUser' %}">Edit profile</a>
+   {% endif %}
 
-  <h1 class="mb-3">{{ user.username }}</h1>
+  <h1 class="mb-3">{{ profile_user }}</h1>
   <p class="fs-5">{{ bund.description }}</p>
   <br>
 

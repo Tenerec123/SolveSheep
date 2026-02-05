@@ -7,6 +7,9 @@ from MainApp.models import *
 from itertools import chain
 from .models import User
 import random
+import resend
+from django.core.signing import Signer # Para firmar los enlaces
+resend.api_key = settings.RESEND_API_KEY
 # Create your views here.
 
 def Logout(request):
@@ -33,13 +36,50 @@ def Login(request):
             'login':True
         })
     
-def Registro(request):
+def Register(request):
+
 
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
+
+            
+            user = form.save(commit=False)
+            user.is_active = False  # Bloqueamos al usuario
+            user.save() # Ahora sí tiene ID
+
+            signer = Signer()
+            token = signer.sign(user.id)
+
+            resend.Emails.send({
+                "from": "onboarding@resend.dev",
+                "to": "solvesheep@gmail.com",
+                "subject": f"Account creation check",
+                "html":"Someone has logged in with your mail. Are you that one?",
+            })
+        
+            return redirect('Main')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, error)
+                    print(error)
+            return render(request, 'login.html', {
+                'form':form,
+                'register':True,
+            })
+    else:
+        form = CustomUserCreationForm()
+        return render(request, 'login.html', {
+            'form':form,
+            'register':True
+        })
+    
+def Edit(request):
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
             usuario = form.save()
-            login(request, usuario)
             return redirect('Main')
         else:
             for field, errors in form.errors.items():
@@ -50,11 +90,11 @@ def Registro(request):
                 'form':form
             })
     else:
-        form = CustomUserCreationForm()
+        form = CustomUserChangeForm(instance=request.user)
         return render(request, 'login.html', {
             'form':form
         })
-    
+
 def User_Interface(request, username):
     user = User.objects.get(username=username)
     problems = Problem.objects.filter(author=user)

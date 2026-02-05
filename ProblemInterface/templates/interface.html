@@ -9,7 +9,8 @@
          style="float: left; width: 25%; height: 100%; object-fit: cover; border-radius: 10px; margin: 10px; margin-bottom: 0;">
   {% endif %}
 
-   <span class="badge" style="background-color: {{ prob.dif_tag.color }}; color: white; margin-right:8px;">
+   <span class="badge" 
+   style="box-shadow: 0 0 10px {{prob.dif_tag.color}}; text-shadow: 1px 1px 5px gray; background-color: {{ prob.dif_tag.color }}; color: white; margin-right: 8px;">
       {{ prob.dif_tag.name }}
     </span>
 
