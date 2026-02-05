@@ -25,8 +25,11 @@ def repair_tags_and_difficulties():
         if item['model'] == 'MainApp.typetag':
             pk = item['pk']
             fields = item['fields']
+            print(fields)
             TypeTag.objects.get_or_create(id=pk, defaults=fields)
         elif item['model'] == "MainApp.diftag":
+            pk = item['pk']
+            fields = item['fields']
             DifTag.objects.get_or_create(id=pk, defaults=fields)
 
     print("\n🚀 ¡Sincronización completada!")
