@@ -13,7 +13,7 @@ def repair_tags_and_difficulties():
         
     # 2. Cargar el JSON para vincular
     try:
-        with open('backup_data.json', 'r', encoding='utf-8') as f:
+        with open('backup_data.json', 'r', encoding='utf-16') as f:
             data = json.load(f)
     except FileNotFoundError:
         print("❌ No se encontró el archivo JSON.")
