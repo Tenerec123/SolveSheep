@@ -70,12 +70,13 @@
   <!-- Contenedor de soluciones -->
   <div id="solutions-container" {% if not solutions %}hidden{% endif %}>
     {% for solution in solutions %}
-      <h2 class="mb-0">
-        <span class="badge bg-secondary fs-6 p-2 fst-italic">
-        
-          Author {{ solution.author }}
-        </span>
+      <a href="{% url 'UserInterface' prob.author %}">
+        <h2 class="mb-0">
+          <span class="badge bg-secondary fs-6 p-2 fst-italic">
+            Author: {{ prob.author }}
+          </span>
       </h2>
+      </a>
       <br>
       <p>{{ solution.text|linebreaksbr}}</p>
 

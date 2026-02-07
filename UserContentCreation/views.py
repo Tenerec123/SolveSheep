@@ -29,11 +29,12 @@ def decide_solution(request, action, token):
         return HttpResponse("⚠️ El enlace no es válido o ya ha expirado.", status=403)
     
 
-def send_email_and_save_solution(prob_id, msg):
+def send_email_and_save_solution(prob_id, msg, author):
     p=Problem.objects.get(id=prob_id)
     s = Solution.objects.create(
         text=msg,
         problem=p,
+        author=author,
     )
        # 2. Creamos el token de seguridad para ESTA solución
     signer = Signer()
@@ -69,7 +70,7 @@ def send_email_and_save_solution(prob_id, msg):
 def SendSolutionToVerificate(request, prob_id):
     if request.method == "GET":
         return render(request, "send_solution.html", {"prob_id":prob_id})
-    thread = threading.Thread(target=lambda:send_email_and_save_solution(prob_id,request.POST.get("solution", "ERROR")))
+    thread = threading.Thread(target=lambda:send_email_and_save_solution(prob_id,request.POST.get("solution", "ERROR"), request.user))
     thread.start()
 
     return redirect('Problem', prob_id=prob_id)

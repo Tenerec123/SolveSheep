@@ -28,6 +28,7 @@ def repair_tags_and_difficulties():
             print(fields)
             TypeTag.objects.get_or_create(id=pk, defaults=fields)
         elif item['model'] == "MainApp.diftag":
+            print(fields)
             pk = item['pk']
             fields = item['fields']
             DifTag.objects.get_or_create(id=pk, defaults=fields)
