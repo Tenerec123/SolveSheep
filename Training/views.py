@@ -7,6 +7,10 @@ from django.conf import settings
 import threading
 import json
 import re
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 
 def Add_Problems(bund_id,Problems_json):
     print(Problems_json)
@@ -20,10 +24,11 @@ def Add_Problems(bund_id,Problems_json):
     # Usamos update_or_create con title como criterio
         new_problem, created = Problem.objects.update_or_create(
             title=prob['title'],  # <-- criterio de búsqueda
+
             defaults={
                 'text': prob['text'],
                 'video': prob['video'],
-                'author': settings.AUTH_USER_MODEL.objects.get(username=prob['author']),
+                'author': User.objects.get(username="SolveSheep"),
                 'dif_tag': DifTag.objects.get(name=prob['dif_tag']),
                 
             }
@@ -63,7 +68,7 @@ def Prompt(Amount, bund_id):
     The field "author" must ALWAYS be exactly "SolveSheep".
     Do NOT include solutions.
     Do NOT reference or ask to see figures/images; avoid phrases like "see the figure".
-    ALLOWED type_tags (use only these; 1–3 tags per problem)
+    ALLOWED type_tags (use only these; 1–3 tags per problem; do not use any other)
     ["Algebra","Calculus","Number Theory","Geometry","Probability","Statistics","Combinatorics","Trigonometry","Inequalities"]
     Put for each backslash put only one literal backslash (\\)
     All double quotes inside JSON strings must be properly escaped using \" and must not use \\\".
@@ -98,9 +103,6 @@ def Normalize(texto: str) -> str:
             return "\\\\" + siguiente  # doble backslash para LaTeX/otros
 
     return re.sub(r"(\\+)(.)", reemplazo, texto)
-
-# Create your views here.
-
 def Ready_Check(request, bund_id):
     bund = Bundle.objects.get(id=bund_id)
     if not bund.needs_reload:
@@ -112,13 +114,10 @@ def Ready_Check(request, bund_id):
         bund.needs_reload = False
         bund.save(update_fields=["relodeable", "needs_reload"])
     return JsonResponse({"ready":Response, "retry":not Response})
-    
-
 def Training_search(request):
     return render(request, 'training.html',{
         "Card_objs":Bundle.objects.all()
     })
-
 def Open_bundle(request, bund_id):
 
     # for prob in Problem.objects.all():
@@ -127,9 +126,8 @@ def Open_bundle(request, bund_id):
     bund = get_object_or_404(Bundle, id=bund_id)
     return render(request, 'bundle_interface.html', {
         'bund':bund,
-        'Card_objs':bund.problems.all()
+        'Card_objs':bund.problems.all().order_by("dif_tag", "title")
     })
-
 def Like_Unlike_Bundle(request, bund_id):
 
     bund = Bundle.objects.get(id=bund_id)
@@ -155,8 +153,7 @@ def Like_Unlike_Bundle(request, bund_id):
         "likes_count": bund.likes_count,
         'liked':liked
     })
-
-def call_ai_api(bund_id):
+def call_ai_api(bund_id, num_problems):
     print("API_CALLED")
     B = Bundle.objects.get(id= bund_id)
     B.needs_reload = True
@@ -165,19 +162,16 @@ def call_ai_api(bund_id):
     client = genai.Client(api_key=settings.AI_KEY)
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=Prompt(20, bund_id),
+        contents=Prompt(num_problems, bund_id),
     )
     print("API_MID_2")
     problems = Normalize(response.text)
     Add_Problems(bund_id, problems)
     print("API_END")
-
-
-
+@staff_member_required
 def Create_AI_Problem(request, bund_id):
-    thread = threading.Thread(target=lambda:call_ai_api(bund_id))
+    thread = threading.Thread(target=lambda:call_ai_api(bund_id, int(request.POST.get("num_problems", 1))))
     thread.start()
-    
     return redirect(reverse("Bundle", kwargs={"bund_id": bund_id}))
         
     

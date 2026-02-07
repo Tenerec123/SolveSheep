@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <form action="{% url 'Create_Problem' bund_id=original.pk %}" method="POST" style="display: inline-flex; align-items: center; gap: 8px; margin-left: 10px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+            {% csrf_token %}
+            <input type="number" name="num_problems" value="1" min="1" max="50" style="width: 50px;">
+            <button type="submit" class="addlink" style="height: 35px; background-color: #417690; color: white; border: none; padding: 0 15px; cursor: pointer;">
+                ✨ Generar IA para este Bundle
+            </button>
+        </form>
+    </li>
+{% endblock %}
