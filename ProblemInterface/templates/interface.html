@@ -23,7 +23,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">{{ prob.title }}</h1>
     {% if prob.author %}
-        <a href="{% url 'UserInterface' prob.author %}">
+        <a href="{% url 'UserInterface_problems' prob.author %}">
           <h2 class="mb-0 text-end">
             <span class="badge bg-secondary fs-6 p-2 fst-italic">
                 Author: {{ prob.author }}
@@ -70,7 +70,7 @@
   <!-- Contenedor de soluciones -->
   <div id="solutions-container" {% if not solutions %}hidden{% endif %}>
     {% for solution in solutions %}
-      <a href="{% url 'UserInterface' prob.author %}">
+      <a href="{% url 'UserInterface_problems' prob.author %}">
         <h2 class="mb-0">
           <span class="badge bg-secondary fs-6 p-2 fst-italic">
             Author: {{ prob.author }}

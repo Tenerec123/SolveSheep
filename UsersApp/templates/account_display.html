@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block styles %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        /* Estilos personalizados para imitar Instagram */
+        .user-nav-link {
+            color: #8e8e8e; /* Gris suave de Instagram */
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 15px 0;
+            margin-right: 40px;
+            border-top: 1px solid transparent; /* Para el efecto de activación */
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .user-nav-link:last-child {
+            margin-right: 0;
+        }
+
+        .user-nav-link i {
+            font-size: 14px;
+            margin-right: 6px;
+        }
+
+        /* Clase activa: borde superior negro y texto oscuro */
+        .user-nav-link.active {
+            color: #262626;
+            border-top: 1px solid #262626;
+            margin-top: -1px; /* Alineación perfecta con el borde de la sección */
+        }
+
+        .user-nav-link:hover {
+            color: #262626;
+        }
+
+        /* Ajuste para móviles */
+        @media (max-width: 768px) {
+            .user-nav-link span {
+                display: none; /* Esconder texto, dejar solo iconos */
+            }
+            .user-nav-link {
+                margin-right: 0;
+                justify-content: center;
+                flex: 1;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<br>
+<div style=" display: flex; flex-direction: row; ">
+  <h1 class="mb-3"> &nbsp{{ profile_user }}  </h1> 
+
+   {% if profile_user == request.user %}
+    <a class="btn btn-success" style="vertical-align: baseline; margin: 10px; " href="{% url 'EditUser' %}">Edit profile</a>
+   {% endif %}
+</div>
+<div class="container mt-5">
+    <hr class="m-0" style="color: #dbdbdb; opacity: 1;">   
+    <nav class="nav justify-content-center">        
+        <a class="user-nav-link {% if request.resolver_match.url_name == 'UserInterface_problems' %}active{% endif %} " href="{% url 'UserInterface_problems' profile_user %}">
+            <i class="bi bi-question-square{% if request.resolver_match.url_name == 'UserInterface_problems' %}-fill{% endif %}"></i>
+            <span>Problems</span>
+        </a>
+
+        <a class="user-nav-link {% if request.resolver_match.url_name == 'UserInterface_bundles' %}active{% endif %}" href="{% url 'UserInterface_bundles' profile_user %}">
+            <i class="bi bi-box-seam{% if request.resolver_match.url_name == 'UserInterface_bundles' %}-fill{% endif %}"></i>
+            <span>Bundles</span>
+        </a>
+        
+        <a class="user-nav-link {% if request.resolver_match.url_name == 'UserInterface_solutions' %}active{% endif %}" href="{% url 'UserInterface_solutions' profile_user %}">
+          <i class="bi bi-check-square{% if request.resolver_match.url_name == 'UserInterface_solutions' %}-fill{% endif %}"></i>
+          <span>Solutions</span>
+        </a>
+
+        <a class="user-nav-link {% if request.resolver_match.url_name == 'UserInterface_likes' %}active{% endif %}" href="{% url 'UserInterface_likes' profile_user %}">
+            <i class="bi bi-heart{% if request.resolver_match.url_name == 'UserInterface_likes' %}-fill{% endif %}"></i>
+            <span>Likes</span>
+        </a>
+    </nav>
+</div>
+  {% if Card_objs %}
+      {% include 'grid_display.html' %}
+  {% endif %}
+
+<div style="clear: both;"></div>
+<br>
+{% endblock %}

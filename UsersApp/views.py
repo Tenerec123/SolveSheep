@@ -95,13 +95,40 @@ def Edit(request):
             'form':form
         })
 
-def User_Interface(request, username):
+
+
+def User_Interface_Problems(request, username):
     user = User.objects.get(username=username)
     problems = Problem.objects.filter(author=user)
-    bundles = Bundle.objects.filter(author=user)
-    GENERAL =list(chain(problems.all(), bundles.all()))
-    random.shuffle(GENERAL)
-    return render(request,"Acc_display.html", {
+    
+    return render(request,"account_display.html", {
         "profile_user":user,
-        "Card_objs":GENERAL,
+        "Card_objs":problems,
+    })
+
+def User_Interface_Bundles(request, username):
+    user = User.objects.get(username=username)
+    bundles = Bundle.objects.filter(author=user)
+    
+    return render(request,"account_display.html", {
+        "profile_user":user,
+        "Card_objs":bundles,
+    })
+
+def User_Interface_Solutions(request, username):
+    user = User.objects.get(username=username)
+    solutions = Solution.objects.filter(author=user)
+    
+    return render(request,"account_display.html", {
+        "profile_user":user,
+        "Card_objs":solutions,
+    })
+
+def User_Interface_Likes(request, username):
+    user = User.objects.get(username=username)
+    liked_problems = user.liked_problems.all()
+    
+    return render(request,"account_display.html", {
+        "profile_user":user,
+        "Card_objs":liked_problems,
     })
