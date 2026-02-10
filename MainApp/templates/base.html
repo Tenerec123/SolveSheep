@@ -8,144 +8,94 @@
     <meta name="description" content="SolveSheep: a web where you can search and solve problems by type and difficulty, see solutions, and create bundles for focused practice and olympiad training">
     <meta name="google-adsense-account" content="ca-pub-1229341265329797">
     <title>SolveSheep | Math problem database</title>
-    <script type="text/javascript" data-cmp-ab="1" src="https://cdn.consentmanager.net/delivery/autoblocking/18c1971ad2d60.js" data-cmp-host="d.delivery.consentmanager.net" data-cmp-cdn="cdn.consentmanager.net" data-cmp-codesrc="16"></script>
+
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied',
+        'wait_for_update': 500 // Da medio segundo al banner de AdSense para actualizar el estado
+      });
+    </script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     
-    <script id="MathJax-script" async
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <link rel="icon" href="{% static 'sheep.ico' %}" type="image/x-icon">
 
-<!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NDJCXH6WE3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-NDJCXH6WE3');
+    </script>
 
+    <style>
+      /* Mantengo tus estilos originales de Masonry y Cards */
+      .masonry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-auto-rows: 10px;
+        gap: 0.04rem;
+      }
+      .masonry-grid-item {
+        padding: 10px;
+        width: 100%;
+        grid-row-end: span var(--row-span, 1);
+        box-sizing: border-box;
+      }
+      .masonry-grid-item.single-card {
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .masonry-grid-item .card {
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .card-img-top {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: contain;
+      }
+      .card-body {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .masonry-grid-item.bundle-card .card {
+        background-color: #f9f7f1;
+        border: 2px solid #f0c040;
+      }
+      .masonry-grid-item.bundle-card .card-title {
+        font-weight: 700;
+        color: #d97706;
+      }
+      .masonry-grid-item.bundle-card .card-text {
+        color: #4b5563;
+        font-size: 0.95rem;
+      }
+      .hover-effect {
+        transition: box-shadow 0.2s ease, background-color 0.2s ease;
+      }
+      .hover-effect:hover {
+        background-color: hsla(0, 0%, 0%, 0.05);
+        box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.3);
+      }
+      h1 { margin-bottom: 0; }
+      h2 { margin-top: 0; font-size: 0.8rem; }
+    </style>
 
-<style>
-/* ===============================
-   Masonry Grid Container
-   =============================== */
-.masonry-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  grid-auto-rows: 10px; /* MUST match JS calculation */
-  gap: 0.04rem;
-}
-
-/* ===============================
-   Masonry Grid Items
-   =============================== */
-.masonry-grid-item {
-  padding: 10px;
-  width: 100%;
-  grid-row-end: span var(--row-span, 1);
-  box-sizing: border-box;
-}
-
-/* Centered single-card layout */
-.masonry-grid-item.single-card {
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* ===============================
-   Cards
-   =============================== */
-.masonry-grid-item .card {
-  width: 100%;
-  overflow: hidden; /* REQUIRED to contain LaTeX */
-  display: flex;
-  flex-direction: column;
-}
-
-/* ===============================
-   Images (CRITICAL FIX)
-   =============================== */
-.card-img-top {
-  width: 100%;
-  height: auto;
-  display: block;       /* removes inline gap */
-  object-fit: contain;  /* prevents cropping */
-}
-
-/* ===============================
-   Card Body / LaTeX Safety
-   =============================== */
-.card-body {
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-/* ===============================
-   Bundle Styling
-   =============================== */
-.masonry-grid-item.bundle-card .card {
-  background-color: #f9f7f1;
-  border: 2px solid #f0c040;
-}
-
-.masonry-grid-item.bundle-card .card-title {
-  font-weight: 700;
-  color: #d97706;
-}
-
-.masonry-grid-item.bundle-card .card-text {
-  color: #4b5563;
-  font-size: 0.95rem;
-}
-
-/* ===============================
-   Hover Effects
-   =============================== */
-.hover-effect {
-  transition: box-shadow 0.2s ease, background-color 0.2s ease;
-}
-
-.hover-effect:hover {
-  background-color: hsla(0, 0%, 0%, 0.05);
-  box-shadow: 2px 8px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* ===============================
-   Typography
-   =============================== */
-h1 {
-  margin-bottom: 0;
-}
-
-h2 {
-  margin-top: 0;
-  font-size: 0.8rem;
-}
-</style>
-
-{% block styles %}
-{% endblock %}
-
- </head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NDJCXH6WE3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-
-  // Configuramos el estado inicial como denegado
-  gtag('consent', 'default', {
-    'ad_storage': 'denied',
-    'ad_user_data': 'denied',
-    'ad_personalization': 'denied',
-    'analytics_storage': 'denied'
-  });
-</script>
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
-
+    {% block styles %}{% endblock %}
+  </head>
   <body>  
 
     <header>
@@ -190,7 +140,7 @@ h2 {
                 <a class="nav-link" href="{% url 'Logout' %}">Logout</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'UserInterface_problems' request.user %}">Account</a>
+                <a class="nav-link" href="{% url 'UserInterface_prol' request.user %}">Account</a>
               </li>
               {% else %}
                <li class="nav-item">
