@@ -5,7 +5,7 @@
 {% for card_obj in Card_objs|slice:":80" %}
   {% if card_obj.class_name == "Problem" %}
     <div class="masonry-grid-item">
-      <a href="{% url 'Problem' card_obj.id %}" style="text-decoration: none;">
+      <a href="{% url 'Problem' card_obj.slug %}" style="text-decoration: none;">
         <div class="card hover-effect" style="overflow: hidden;">
           {% if card_obj.image %}
             <img src="{{ card_obj.image.url }}" alt="Problem Image" class="card-img-top">
@@ -35,7 +35,7 @@
 
   {% elif card_obj.class_name == "Bundle" %}
     <div class="masonry-grid-item bundle-card" style="overflow: hidden;">
-      <a href="{% url 'Bundle' card_obj.id %}" style="text-decoration: none;">
+      <a href="{% url 'Bundle' card_obj.slug %}" style="text-decoration: none;">
         <div class="card hover-effect">
           {% if card_obj.image %}
             <img src="{{ card_obj.image.url }}" alt="Bundle Image" class="card-img-top">

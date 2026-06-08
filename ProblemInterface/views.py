@@ -5,21 +5,21 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-def Open_problem(request, prob_id):
+def Open_problem(request, problem_slug):
 
     # for prob in Problem.objects.all():
     #     prob.likes_count = 0
     #     prob.save(update_fields=['likes_count'])
-    prob = get_object_or_404(Problem, id=prob_id)
+    prob = get_object_or_404(Problem, slug=problem_slug)
     return render(request, 'interface.html', {
         'prob':prob,
         'solutions':Solution.objects.filter(problem=prob, accepted=True),
     })
 
 @csrf_exempt
-def Like_Unlike_Problem(request, prob_id):
+def Like_Unlike_Problem(request, problem_slug):
 
-    prob = Problem.objects.get(id=prob_id)
+    prob = Problem.objects.get(slug=problem_slug)
 
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -43,9 +43,9 @@ def Like_Unlike_Problem(request, prob_id):
         'liked':liked
     })
 @csrf_exempt
-def toggle_solutions(request, prob_id):
+def toggle_solutions(request, problem_slug):
     if request.method == "POST":
-        prob = get_object_or_404(Problem, id=prob_id)
+        prob = get_object_or_404(Problem, slug=problem_slug)
         data = json.loads(request.body)
         show = data.get("show", False)
 

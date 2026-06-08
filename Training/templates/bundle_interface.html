@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   LikeBTN.addEventListener("click", function() {
 
-    fetch("{% url 'Like_Bundle' bund.id %}", {
+    fetch("{% url 'Like_Bundle' bund.slug %}", {
       method: "POST",
       headers: {
         "X-CSRFToken": "{{ csrf_token }}",

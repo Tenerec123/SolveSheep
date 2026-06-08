@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.core.validators import RegexValidator
+from django.utils.text import slugify
 
 hex_color_validator = RegexValidator(
     regex=r'^#([A-Fa-f0-9]{6})$',
@@ -23,6 +24,7 @@ class DifTag(models.Model):
 
 class Problem(models.Model):
     title = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True, max_length=100, null=True, blank=True)
     text = models.CharField(max_length=1000, blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to="problems/")
 
@@ -45,6 +47,12 @@ class Problem(models.Model):
     def class_name(self):
         return self.__class__.__name__
     
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            clean_title = self.title.replace('$', '').replace('{', '').replace('}', '')
+            self.slug = slugify(clean_title)
+        super().save(*args, **kwargs)
+    
     def delete(self, *args, **kwargs):
         if self.image:
             self.image.delete(save=False)
@@ -64,6 +72,7 @@ class Solution(models.Model):
 
 class Bundle(models.Model):
     title = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True, max_length=100, null=True, blank=True)
     description = models.CharField(max_length=1000, blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to="bundles/")
 
@@ -85,6 +94,12 @@ class Bundle(models.Model):
     
     def class_name(self):
         return self.__class__.__name__
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            clean_title = self.title.replace('$', '').replace('{', '').replace('}', '')
+            self.slug = slugify(clean_title)
+        super().save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
         if self.image:

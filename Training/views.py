@@ -103,8 +103,8 @@ def Normalize(texto: str) -> str:
             return "\\\\" + siguiente  # doble backslash para LaTeX/otros
 
     return re.sub(r"(\\+)(.)", reemplazo, texto)
-def Ready_Check(request, bund_id):
-    bund = Bundle.objects.get(id=bund_id)
+def Ready_Check(request, bundle_slug):
+    bund = Bundle.objects.get(slug=bundle_slug)
     if not bund.needs_reload:
         return JsonResponse({"ready":False, "retry":False})
 
@@ -118,19 +118,19 @@ def Training_search(request):
     return render(request, 'training.html',{
         "Card_objs":Bundle.objects.all()
     })
-def Open_bundle(request, bund_id):
+def Open_bundle(request, bundle_slug):
 
     # for prob in Problem.objects.all():
     #     prob.likes_count = 0
     #     prob.save(update_fields=['likes_count'])
-    bund = get_object_or_404(Bundle, id=bund_id)
+    bund = get_object_or_404(Bundle, slug=bundle_slug)
     return render(request, 'bundle_interface.html', {
         'bund':bund,
         'Card_objs':bund.problems.all().order_by("dif_tag", "title")
     })
-def Like_Unlike_Bundle(request, bund_id):
+def Like_Unlike_Bundle(request, bundle_slug):
 
-    bund = Bundle.objects.get(id=bund_id)
+    bund = Bundle.objects.get(slug=bundle_slug)
 
     if not request.user.is_authenticated:
         return JsonResponse({
@@ -153,25 +153,25 @@ def Like_Unlike_Bundle(request, bund_id):
         "likes_count": bund.likes_count,
         'liked':liked
     })
-def call_ai_api(bund_id, num_problems):
+def call_ai_api(bundle_slug, num_problems):
     print("API_CALLED")
-    B = Bundle.objects.get(id= bund_id)
+    B = Bundle.objects.get(slug=bundle_slug)
     B.needs_reload = True
     B.save(update_fields=["needs_reload"])
     print("API_MID_1")
     client = genai.Client(api_key=settings.AI_KEY)
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=Prompt(num_problems, bund_id),
+        contents=Prompt(num_problems, B.id),
     )
     print("API_MID_2")
     problems = Normalize(response.text)
-    Add_Problems(bund_id, problems)
+    Add_Problems(B.id, problems)
     print("API_END")
 @staff_member_required
-def Create_AI_Problem(request, bund_id):
-    thread = threading.Thread(target=lambda:call_ai_api(bund_id, int(request.POST.get("num_problems", 1))))
+def Create_AI_Problem(request, bundle_slug):
+    thread = threading.Thread(target=lambda:call_ai_api(bundle_slug, int(request.POST.get("num_problems", 1))))
     thread.start()
-    return redirect(reverse("Bundle", kwargs={"bund_id": bund_id}))
+    return redirect(reverse("Bundle", kwargs={"bundle_slug": bundle_slug}))
         
     

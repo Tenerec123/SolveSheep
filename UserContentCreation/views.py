@@ -70,7 +70,8 @@ def send_email_and_save_solution(prob_id, msg, author):
 def SendSolutionToVerificate(request, prob_id):
     if request.method == "GET":
         return render(request, "send_solution.html", {"prob_id":prob_id})
+    prob = Problem.objects.get(id=prob_id)
     thread = threading.Thread(target=lambda:send_email_and_save_solution(prob_id,request.POST.get("solution", "ERROR"), request.user))
     thread.start()
 
-    return redirect('Problem', prob_id=prob_id)
+    return redirect('Problem', problem_slug=prob.slug)
