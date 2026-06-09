@@ -10,7 +10,7 @@ AUTH_USER_MODEL = 'UsersApp.User'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-
+DEBUG = env.bool("DEBUG", default=False)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -84,18 +84,12 @@ WSGI_APPLICATION = 'MathWeb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     "default": dj_database_url.config(
-#         default=os.environ.get("DATABASE_URL"),
-#         conn_max_age=600,
-#         ssl_require=True,
-#     )
-# }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=env("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require= not DEBUG,
+    )
 }
 
 # Password validation
@@ -150,7 +144,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # SECURITY / CSRF (PRODUCTION)
 # ============================
 
-DEBUG = env.bool("DEBUG", default=False)
+
 if not DEBUG:
     # Behind proxy (Sevalla)
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

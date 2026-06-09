@@ -1,13 +1,23 @@
 from django.db import models
-from django.utils import timezone
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.utils.text import slugify
+from pgvector.django import VectorField
+from sentence_transformers import SentenceTransformer
 
 hex_color_validator = RegexValidator(
     regex=r'^#([A-Fa-f0-9]{6})$',
     message='Ingrese un color hexadecimal válido, por ejemplo: #ff0000'
 )
+
+_embedding_model = None
+
+def get_embedding_model():
+    """Load and cache the embedding model on first use"""
+    global _embedding_model
+    if _embedding_model is None:
+        _embedding_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+    return _embedding_model
 # Create your models here.
 
 class TypeTag(models.Model):
@@ -23,12 +33,13 @@ class DifTag(models.Model):
         return str(self.name)
 
 class Problem(models.Model):
-    title = models.CharField(max_length=50)
-    slug = models.SlugField(unique=True, max_length=100, null=True, blank=True)
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=255, null=True, blank=True)
     text = models.CharField(max_length=1000, blank=True, null=True)
-    image = models.ImageField(blank=True, null=True, upload_to="problems/")
-
+    image = models.ImageField(blank=True, null=True, upload_to="problems/")    
     video = models.URLField(blank=True, null=True)
+
+    embedding = VectorField(blank=True, null=True,dimensions=384)
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -51,6 +62,21 @@ class Problem(models.Model):
         if not self.slug:
             clean_title = self.title.replace('$', '').replace('{', '').replace('}', '')
             self.slug = slugify(clean_title)
+        
+        update_embeds = False
+        if not self.embedding:
+            update_embeds = True
+        if self.pk and update_embeds == False:
+            orig = Problem.objects.get(pk=self.pk)
+            update_embeds = (orig.title != self.title) or (orig.text != self.text)
+
+        if update_embeds:
+            model = get_embedding_model()
+            text_to_embed = self.title 
+            if self.text:
+                text_to_embed += " " + self.text
+            self.embedding = model.encode(text_to_embed).tolist()
+        
         super().save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
@@ -71,10 +97,12 @@ class Solution(models.Model):
         return self.text[:15]
 
 class Bundle(models.Model):
-    title = models.CharField(max_length=50)
-    slug = models.SlugField(unique=True, max_length=100, null=True, blank=True)
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=255, null=True, blank=True)
     description = models.CharField(max_length=1000, blank=True, null=True)
     image = models.ImageField(blank=True, null=True, upload_to="bundles/")
+
+    embedding = VectorField(blank=True, null=True,dimensions=384)
 
     problems = models.ManyToManyField(Problem, related_name="Problems", blank=True)
 
@@ -99,6 +127,21 @@ class Bundle(models.Model):
         if not self.slug:
             clean_title = self.title.replace('$', '').replace('{', '').replace('}', '')
             self.slug = slugify(clean_title)
+        
+        update_embeds = False
+        if not self.embedding:
+            update_embeds = True
+        if self.pk and update_embeds == False:
+            orig = Problem.objects.get(pk=self.pk)
+            update_embeds = (orig.title != self.title) or (orig.description != self.description)
+
+        if update_embeds:
+            model = get_embedding_model()
+            text_to_embed = self.title 
+            if self.description:
+                text_to_embed += " " + self.description
+            self.embedding = model.encode(text_to_embed).tolist()
+        
         super().save(*args, **kwargs)
     
     def delete(self, *args, **kwargs):
