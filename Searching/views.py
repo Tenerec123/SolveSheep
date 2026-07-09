@@ -1,8 +1,18 @@
 from django.shortcuts import render
 from django.db.models import Q
 from MainApp.models import DifTag, TypeTag, Problem, Bundle
+from pgvector.django import CosineDistance
+from sentence_transformers import SentenceTransformer
 from itertools import chain
-import random
+
+_embedding_model = None
+
+def get_embedding_model():
+    global _embedding_model
+    if _embedding_model is None:
+        _embedding_model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2')
+    return _embedding_model
+
 # Create your views here.
 
 def Search(request):
@@ -49,15 +59,35 @@ def Search(request):
         if Type_idx != 0:
             Combined_search &= Q(type_tags = Type_idx)
 
-        if Text != "":
-            Combined_search &= Q(
-                Q(title__icontains = Text) | 
+        probs = Problem.objects.filter(Combined_search)
+        bunds = Bundle.objects.filter(problems__in=probs).distinct()
+
+        if Text:
+            direct_probs = probs.filter(
+                Q(title__icontains = Text) |
                 Q(text__icontains = Text)
-            )
-        probs = Problem.objects.all().filter(Combined_search)
-        bunds = Bundle.objects.all().filter(problems__in = probs).distinct()
-        card_objs =list(chain(probs, bunds))
-        random.shuffle(card_objs)
+            )[:5]
+            direct_bunds = bunds.filter(
+                Q(title__icontains = Text) |
+                Q(description__icontains = Text)
+            )[:5]
+
+            model = get_embedding_model()
+            query_vector = model.encode(Text).tolist()
+            remaining_probs = probs.exclude(pk__in=direct_probs.values('pk')).order_by(
+                CosineDistance('embedding', query_vector)
+            )[:45]
+            remaining_bunds = bunds.exclude(pk__in=direct_bunds.values('pk')).order_by(
+                CosineDistance('embedding', query_vector)
+            )[:45]
+
+            probs = list(direct_probs) + list(remaining_probs)
+            bunds = list(direct_bunds) + list(remaining_bunds)
+        else:
+            probs = probs[:50]
+            bunds = bunds[:50]
+
+        card_objs = list(chain(probs, bunds))
 
         return render(request, 'search.html',{
         'searched':True,
