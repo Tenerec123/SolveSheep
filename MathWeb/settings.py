@@ -3,7 +3,6 @@ from pathlib import Path
 import os
 import environ
 import dj_database_url
-import os
 env = environ.Env(DEBUG=(bool, False))
 AUTH_USER_MODEL = 'UsersApp.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

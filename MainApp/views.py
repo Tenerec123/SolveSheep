@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.conf import settings
 from django.contrib.auth.models import User
 from .forms import ProblemForm
 from .models import Problem, DifTag, TypeTag
@@ -22,7 +23,7 @@ def Difs(request):
     return render(request, 'difficulties.html')
 
 def Add_JSON_probs(request):
-    with open(r'C:\Users\siste\Documentos\Codigo\Python\Django\MathWeb\MainApp\ZZ_newprobs.json', 'r', encoding='utf-8') as archivo:
+    with open(settings.BASE_DIR / 'MainApp' / 'ZZ_newprobs.json','r', encoding='utf-8') as archivo:
         objeto = json.load(archivo)
         for prob in objeto:
             # Usamos update_or_create con title como criterio
