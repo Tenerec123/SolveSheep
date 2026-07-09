@@ -128,14 +128,11 @@ class Bundle(models.Model):
             clean_title = self.title.replace('$', '').replace('{', '').replace('}', '')
             self.slug = slugify(clean_title)
         
-        update_embeds = False
-        if not self.embedding:
-            update_embeds = True
-        if self.pk and update_embeds == False:
-            orig = Problem.objects.get(pk=self.pk)
+        if self.pk and self.embedding:
+            orig = Bundle.objects.get(pk=self.pk)
             update_embeds = (orig.title != self.title) or (orig.description != self.description)
 
-        if update_embeds:
+        if not self.embedding or update_embeds:
             model = get_embedding_model()
             text_to_embed = self.title 
             if self.description:
