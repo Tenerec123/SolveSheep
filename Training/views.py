@@ -2,6 +2,7 @@ from django.shortcuts import render,get_object_or_404,redirect
 from django.urls import reverse
 from MainApp.models import Bundle, Problem, DifTag, TypeTag
 from django.http import JsonResponse
+from django.db.models import F
 from google import genai
 from django.conf import settings
 import threading
@@ -141,14 +142,13 @@ def Like_Unlike_Bundle(request, bundle_slug):
     liked = True
     if request.user in bund.likes.all():
         liked = False
-        print("Dislike")
         bund.likes.remove(request.user)
-        bund.likes_count -= 1
+        # Atomic counter update in the database.
+        Bundle.objects.filter(pk=bund.pk).update(likes_count=F('likes_count') - 1)
     else:
-        print("Like")
         bund.likes.add(request.user)
-        bund.likes_count += 1
-    bund.save(update_fields=['likes_count'])
+        Bundle.objects.filter(pk=bund.pk).update(likes_count=F('likes_count') + 1)
+    bund.refresh_from_db(fields=['likes_count'])
     return JsonResponse({
         "likes_count": bund.likes_count,
         'liked':liked
