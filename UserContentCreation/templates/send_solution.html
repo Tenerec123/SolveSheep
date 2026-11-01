@@ -42,6 +42,7 @@ math-field {
 <br><br>
 <form method="post" action="{% url 'SendSolution' prob_id %}">
     {% csrf_token %}
+    {% if error %}<p style="color:#c0392b;">{{ error }}</p>{% endif %}
   <button type="button" onclick="insertMath('inline')" class="btn btn-success">Insert inline formula</button>
   <button type="button" onclick="insertMath('display')" class="btn btn-success">Insert display formula</button>
     <br><br>

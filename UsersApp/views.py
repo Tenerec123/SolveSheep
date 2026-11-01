@@ -3,13 +3,15 @@ from django.contrib import messages
 from django.contrib.auth import logout, login
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import CustomUserCreationForm, CustomUserChangeForm
+from django.conf import settings
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from MainApp.models import *
-from itertools import chain
 from .models import User
-import random
 import resend
-from django.core.signing import Signer # Para firmar los enlaces
+
 resend.api_key = settings.RESEND_API_KEY
+
+ACTIVATION_TOKEN_MAX_AGE = 60 * 60 * 48  # 48 hours
 # Create your views here.
 
 def Logout(request):
@@ -45,19 +47,24 @@ def Register(request):
 
             
             user = form.save(commit=False)
-            user.is_active = False  # Bloqueamos al usuario
-            user.save() # Ahora sí tiene ID
+            user.is_active = False  # Bloqueamos al usuario hasta verificar el email
+            user.save()
 
-            signer = Signer()
-            token = signer.sign(user.id)
+            signer = TimestampSigner()
+            token = signer.sign(user.pk)
+            activation_url = f"{settings.MAIN_URL}/authentication/activate/{token}/"
 
             resend.Emails.send({
-                "from": "onboarding@resend.dev",
-                "to": "solvesheep@gmail.com",
-                "subject": f"Account creation check",
-                "html":"Someone has logged in with your mail. Are you that one?",
+                "from": settings.RESEND_FROM_EMAIL,
+                "to": user.email,
+                "subject": "Confirm your SolveSheep account",
+                "html": (
+                    f"<p>Someone just created an account with this email.</p>"
+                    f"<p><a href='{activation_url}'>Activate my account</a></p>"
+                    f"<p>This link expires in 48 hours.</p>"
+                ),
             })
-        
+
             return redirect('Main')
         else:
             for field, errors in form.errors.items():
@@ -96,6 +103,25 @@ def Edit(request):
         })
 
 
+
+def Activate(request, token):
+    signer = TimestampSigner()
+    try:
+        user_id = signer.unsign(token, max_age=ACTIVATION_TOKEN_MAX_AGE)
+        user = User.objects.get(pk=user_id)
+    except (SignatureExpired, BadSignature, User.DoesNotExist, ValueError):
+        messages.error(request, "The activation link is invalid or has expired. Please register again.")
+        return redirect('Register')
+
+    if user.is_active:
+        messages.info(request, "This account is already active. You can log in.")
+        return redirect('Login')
+
+    user.is_active = True
+    user.save()
+    login(request, user)
+    messages.success(request, "Your account is now active. Welcome!")
+    return redirect('Main')
 
 def User_Interface_Problems(request, username):
     user = User.objects.get(username=username)

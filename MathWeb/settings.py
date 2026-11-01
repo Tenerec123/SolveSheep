@@ -3,7 +3,6 @@ from pathlib import Path
 import os
 import environ
 import dj_database_url
-import os
 env = environ.Env(DEBUG=(bool, False))
 AUTH_USER_MODEL = 'UsersApp.User'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -16,7 +15,6 @@ DEBUG = env.bool("DEBUG", default=False)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
-AI_KEY = env("GEMINI_API_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
@@ -42,10 +40,7 @@ INSTALLED_APPS = [
     'AccountInterface',
     'UserContentCreation',
 
-    "django_check_seo",
-    # 'cms',
-    'menus',
-    'treebeard'
+    "django_check_seo"
 ]
 
 SITE_ID = 1
@@ -94,6 +89,8 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
+LOGIN_URL = "/authentication/login/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -167,3 +164,6 @@ else:
 
 RESEND_API_KEY = env("RESEND_API_KEY")
 MAIN_URL = env("MAIN_URL")
+# Resend's sandbox address only delivers to the account owner; set a
+# verified domain address in .env for real outgoing email.
+RESEND_FROM_EMAIL = env("RESEND_FROM_EMAIL", default="onboarding@resend.dev")

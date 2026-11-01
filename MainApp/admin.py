@@ -1,8 +1,6 @@
 from django.contrib import admin
 from .models import *
 # Register your models here.
-from django.urls import path
-from django.shortcuts import redirect
 
 
 class SolutionInline(admin.TabularInline):
@@ -21,19 +19,7 @@ class ProblemAdmin(admin.ModelAdmin):
     list_filter = ("dif_tag", "type_tags")
     inlines = [SolutionInline,]
 
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('AI_generator/', self.admin_site.admin_view(self.ia_generator_view), name='AI_generator'),
-        ]
-        return custom_urls + urls
-
-    def ia_generator_view(self, request, bund_id):
- 
-        return redirect("Create_Problem", )
-
 class BundleAdmin(admin.ModelAdmin):
-    change_form_template = "admin/ai_button.html"
     only_read = ("created", "updated")
     #list_filter = ("dif_tags", "type_tags")
     inlines = [ProblemInline,]
@@ -46,7 +32,15 @@ class DifTagAdmin(admin.ModelAdmin):
     only_read = ()
 
 class SolutionAdmin(admin.ModelAdmin):
-    only_read = ()
+    actions = ["accept_solutions", "reject_solutions"]
+
+    @admin.action(description="Accept selected solutions (visible on the problem page)")
+    def accept_solutions(self, request, queryset):
+        queryset.update(accepted=True)
+
+    @admin.action(description="Reject selected solutions (delete)")
+    def reject_solutions(self, request, queryset):
+        queryset.delete()
 
 
 

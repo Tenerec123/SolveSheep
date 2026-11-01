@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse
 from MainApp.models import Problem, Solution
+from django.db.models import F
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 import json
 
 def Open_problem(request, problem_slug):
@@ -16,7 +16,6 @@ def Open_problem(request, problem_slug):
         'solutions':Solution.objects.filter(problem=prob, accepted=True),
     })
 
-@csrf_exempt
 def Like_Unlike_Problem(request, problem_slug):
 
     prob = Problem.objects.get(slug=problem_slug)
@@ -30,19 +29,18 @@ def Like_Unlike_Problem(request, problem_slug):
     liked = True
     if request.user in prob.likes.all():
         liked = False
-        print("Dislike")
         prob.likes.remove(request.user)
-        prob.likes_count -= 1
+        # Atomic counter update in the database: reading + incrementing in
+        # Python loses likes under concurrent requests.
+        Problem.objects.filter(pk=prob.pk).update(likes_count=F('likes_count') - 1)
     else:
-        print("Like")
         prob.likes.add(request.user)
-        prob.likes_count += 1
-    prob.save(update_fields=['likes_count'])
+        Problem.objects.filter(pk=prob.pk).update(likes_count=F('likes_count') + 1)
+    prob.refresh_from_db(fields=['likes_count'])
     return JsonResponse({
         "likes_count": prob.likes_count,
         'liked':liked
     })
-@csrf_exempt
 def toggle_solutions(request, problem_slug):
     if request.method == "POST":
         prob = get_object_or_404(Problem, slug=problem_slug)
