@@ -11,4 +11,4 @@ psycopg[binary]
 dj-database-url
 resend
 pgvector
-django-anymail[resend]
+django-anymail[resend]pillow
