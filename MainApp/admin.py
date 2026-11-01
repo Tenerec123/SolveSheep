@@ -46,7 +46,15 @@ class DifTagAdmin(admin.ModelAdmin):
     only_read = ()
 
 class SolutionAdmin(admin.ModelAdmin):
-    only_read = ()
+    actions = ["accept_solutions", "reject_solutions"]
+
+    @admin.action(description="Accept selected solutions (visible on the problem page)")
+    def accept_solutions(self, request, queryset):
+        queryset.update(accepted=True)
+
+    @admin.action(description="Reject selected solutions (delete)")
+    def reject_solutions(self, request, queryset):
+        queryset.delete()
 
 
 
