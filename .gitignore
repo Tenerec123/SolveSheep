@@ -13,6 +13,7 @@ env/
 .venv/
 .env
 .DS_Store
-Thumbs.dbstaticfiles/
+Thumbs.db
+staticfiles/
 media/
 .venv/
