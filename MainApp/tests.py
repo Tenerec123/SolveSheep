@@ -1,3 +1,7 @@
 from django.test import TestCase
 
-# Create your tests here.
+
+class RemovedEndpointsTests(TestCase):
+    def test_json_import_route_removed(self):
+        response = self.client.get("/json/")
+        self.assertEqual(response.status_code, 404)
