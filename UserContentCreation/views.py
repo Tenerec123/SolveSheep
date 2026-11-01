@@ -16,7 +16,9 @@ SOLUTION_RATE_WINDOW = 3600  # seconds
 
 def _rate_limit_ok(user_id):
     key = f"solution_rate_{user_id}"
-    if not cache.add(key, 0, SOLUTION_RATE_WINDOW):
+    # add() only succeeds for the first call inside the window: the stored
+    # value starts at 1 so incr() afterwards counts total attempts exactly.
+    if not cache.add(key, 1, SOLUTION_RATE_WINDOW):
         try:
             count = cache.incr(key)
         except ValueError:
