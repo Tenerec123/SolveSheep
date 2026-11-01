@@ -166,3 +166,6 @@ else:
 
 RESEND_API_KEY = env("RESEND_API_KEY")
 MAIN_URL = env("MAIN_URL")
+# Resend's sandbox address only delivers to the account owner; set a
+# verified domain address in .env for real outgoing email.
+RESEND_FROM_EMAIL = env("RESEND_FROM_EMAIL", default="onboarding@resend.dev")

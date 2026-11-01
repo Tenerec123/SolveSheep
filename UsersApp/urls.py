@@ -5,6 +5,7 @@ urlpatterns = [
     path('logout/', Logout, name="Logout"),
     path('register/',Register, name="Register"),
     path('login/',Login, name="Login"),
+    path('activate/<str:token>/', Activate, name="Activate"),
     path('edit/', Edit, name="EditUser"),
 
     path('user/<str:username>/problems', User_Interface_Problems, name="UserInterface_problems"),
