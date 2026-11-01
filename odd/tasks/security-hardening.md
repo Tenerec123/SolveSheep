@@ -24,7 +24,7 @@ Audit found public write endpoints, broken signup, email-triggered moderation, C
 - T6 (S7) Fix 5: remove csrf_exempt — commit: (pending)
 - T7 (S8) Fix 6: atomic likes_count — commit: (pending)
 - T8 (S9) Fix 7: remove Gemini generation — done: 15239d9 (Training rewritten without AI views/routes, ai_button.html + geminitest.py deleted, google-genai/GEMINI_API_KEY dropped). Leftover commented Create_Problem mention in bundle_interface.html is inside a broken HTML comment, inert.
-- T9 (S3) venv + verification — done: .venv ready with requirements + sentence-transformers + pillow (pinned, commit 96bb192 incl. menus/treebeard removal); manage.py check clean. manage.py test still blocked: no local Postgres at localhost (connection refused), no Docker daemon on this machine.
+- T9 (S3) venv + verification — done: .venv ready with requirements + sentence-transformers + pillow (pinned, commit 96bb192 incl. menus/treebeard removal); manage.py check clean. later completed: user runs dev.sh with local pgvector/postgres Docker container (mathweb-pg), tests + superuser ok, server on http://100.118.141.119:8010 over Tailscale. Test suite added (10 green, 2528ea2/9317457/ad5847d): activation flow incl. expired+forged tokens, login_required redirect (LOGIN_URL was undefined, caught by tests), rate-limit off-by-one fix (caught by tests), CSRF like 403, removed-route guards. Pending non-automated: manual smoke register→activate→login→solution→moderation; RESEND_FROM_EMAIL needs a verified domain for real addresses.
 
 ## Log
 
