@@ -3,7 +3,6 @@ gunicorn
 whitenoise
 django-environ
 django_check_seo
-google-genai
 celery
 redis
 django-celery-results
@@ -11,4 +10,6 @@ psycopg[binary]
 dj-database-url
 resend
 pgvector
-django-anymail[resend]pillow
+django-anymail[resend]
+pillow
+sentence-transformers
