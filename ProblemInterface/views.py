@@ -2,7 +2,6 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse
 from MainApp.models import Problem, Solution
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 import json
 
 def Open_problem(request, problem_slug):
@@ -16,7 +15,6 @@ def Open_problem(request, problem_slug):
         'solutions':Solution.objects.filter(problem=prob, accepted=True),
     })
 
-@csrf_exempt
 def Like_Unlike_Problem(request, problem_slug):
 
     prob = Problem.objects.get(slug=problem_slug)
@@ -42,7 +40,6 @@ def Like_Unlike_Problem(request, problem_slug):
         "likes_count": prob.likes_count,
         'liked':liked
     })
-@csrf_exempt
 def toggle_solutions(request, problem_slug):
     if request.method == "POST":
         prob = get_object_or_404(Problem, slug=problem_slug)
