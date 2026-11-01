@@ -4,8 +4,27 @@ from django.conf import settings
 import resend
 from MainApp.models import Problem, Solution
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 
 resend.api_key = settings.RESEND_API_KEY
+
+# Simple in-process counter; swapping CACHES to redis makes it shared
+SOLUTION_RATE_LIMIT = 5
+SOLUTION_RATE_WINDOW = 3600  # seconds
+
+
+def _rate_limit_ok(user_id):
+    key = f"solution_rate_{user_id}"
+    if not cache.add(key, 0, SOLUTION_RATE_WINDOW):
+        try:
+            count = cache.incr(key)
+        except ValueError:
+            cache.set(key, 1, SOLUTION_RATE_WINDOW)
+            count = 1
+    else:
+        count = 1
+    return count <= SOLUTION_RATE_LIMIT
 
 
 def send_email_and_save_solution(prob_id, msg, author):
@@ -38,11 +57,28 @@ def send_email_and_save_solution(prob_id, msg, author):
 
 
 
+@login_required
 def SendSolutionToVerificate(request, prob_id):
     if request.method == "GET":
         return render(request, "send_solution.html", {"prob_id":prob_id})
+
+    solution_text = request.POST.get("solution", "").strip()
+    if not solution_text:
+        return render(request, "send_solution.html", {
+            "prob_id": prob_id,
+            "error": "The solution text cannot be empty.",
+        })
+    if len(solution_text) > 1000:
+        return render(request, "send_solution.html", {
+            "prob_id": prob_id,
+            "error": "Solutions are limited to 1000 characters.",
+        })
+
+    if not _rate_limit_ok(request.user.pk):
+        return HttpResponse("Too many solutions submitted. Try again later.", status=429)
+
     prob = Problem.objects.get(id=prob_id)
-    thread = threading.Thread(target=lambda:send_email_and_save_solution(prob_id,request.POST.get("solution", "ERROR"), request.user))
+    thread = threading.Thread(target=lambda:send_email_and_save_solution(prob_id, solution_text, request.user))
     thread.start()
 
     return redirect('Problem', problem_slug=prob.slug)
