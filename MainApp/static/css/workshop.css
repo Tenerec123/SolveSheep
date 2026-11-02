@@ -1,7 +1,12 @@
-/* Warm workshop / observatory theme tokens. Values follow the chosen concept artboards. */
+/* Warm workshop / observatory theme tokens with notebook paper detailing.
+   Values follow the chosen concept artboards. */
 :root {
   color-scheme: light;
   --ss-page: #f6f5ef;
+  --ss-rule: rgb(36 90 112 / 9%);
+  --ss-rule-strong: rgb(36 90 112 / 16%);
+  --ss-margin-line: rgb(216 121 78 / 42%);
+  --ss-paper-shadow: 0 2px 0 rgb(32 43 54 / 7%), 0 14px 34px rgb(32 43 54 / 7%);
   --ss-surface: #fffdf8;
   --ss-surface-raised: #ffffff;
   --ss-ink: #202b36;
@@ -29,6 +34,10 @@ html[data-theme="light"] {
 html[data-theme="dark"] {
   color-scheme: dark;
   --ss-page: #121d27;
+  --ss-rule: rgb(141 205 233 / 7%);
+  --ss-rule-strong: rgb(141 205 233 / 13%);
+  --ss-margin-line: rgb(240 160 120 / 34%);
+  --ss-paper-shadow: 0 2px 0 rgb(0 0 0 / 26%), 0 14px 38px rgb(0 0 0 / 26%);
   --ss-surface: #1b2935;
   --ss-surface-raised: #243541;
   --ss-ink: #edf1ed;
@@ -49,10 +58,26 @@ html[data-theme="dark"] {
   --ss-shadow: 0 14px 38px rgb(0 0 0 / 25%);
 }
 
+/* Restrained college-rule paper: faint lines every 1.65rem across the page.
+   In dark mode the observatory sheet keeps the same pitch with fainter ink. */
 body {
   background-color: var(--ss-page);
+  background-image: linear-gradient(var(--ss-rule) 1px, transparent 1px);
+  background-size: 100% 1.65rem;
   color: var(--ss-ink);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Editorial hierarchy: serif display faces for titles, sans for prose. */
+h1,
+h2,
+h3,
+h4,
+.card-title,
+.card-header,
+.navbar-brand {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", serif;
+  letter-spacing: -0.02em;
 }
 
 a {
@@ -109,12 +134,16 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
+/* Paper card: sharper edge, red notebook margin rule on the left and a
+   layered hard-plus-soft shadow so cards read as sheets on the desk. */
 .card {
+  position: relative;
   color: var(--ss-ink);
   background-color: var(--ss-surface-raised);
   border-color: var(--ss-border);
-  border-radius: 1rem;
-  box-shadow: var(--ss-shadow);
+  border-left: 3px solid var(--ss-margin-line);
+  border-radius: 0.55rem;
+  box-shadow: var(--ss-paper-shadow);
 }
 
 .card-title,
@@ -164,6 +193,51 @@ hr {
   color: var(--ss-ink);
   background-color: var(--ss-surface-raised);
   border: 1px solid var(--ss-accent);
+  border-left: 3px solid var(--ss-margin-line);
+}
+
+/* Notebook label chips: squared paper labels instead of generic pills. */
+.ss-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--ss-border);
+  border-inline-start: 3px solid var(--ss-tag-color, var(--ss-brand));
+  border-radius: 0.3rem;
+  color: var(--ss-ink);
+  background-color: var(--ss-surface);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Honest neutral label for problems with no stored difficulty/topic tag.
+   Dashed rule and muted ink make clear no taxonomy entry exists yet. */
+.ss-tag--untagged {
+  color: var(--ss-muted);
+  background-color: var(--ss-neutral-soft);
+  border-style: dashed;
+  border-inline-start-style: solid;
+  border-inline-start-color: var(--ss-neutral);
+  --ss-tag-color: var(--ss-neutral);
+  font-weight: 600;
+}
+
+/* Margin-note treatment for author-byline style annotations. */
+.ss-margin-note {
+  color: var(--ss-muted) !important;
+  background-color: transparent !important;
+  border: 0;
+  border-inline-start: 3px solid var(--ss-margin-line);
+  border-radius: 0.15rem;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+/* Problem statement typeset like notebook handwriting-free prose. */
+.ss-problem-text {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 1.1rem;
+  line-height: 1.75;
 }
 
 .masonry-grid .masonry-grid-item.bundle-card .card-title {
@@ -172,19 +246,6 @@ hr {
 
 .masonry-grid .masonry-grid-item.bundle-card .card-text {
   color: var(--ss-muted);
-}
-
-.ss-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.55rem;
-  border: 1px solid var(--ss-border);
-  border-inline-start: 3px solid var(--ss-tag-color, var(--ss-brand));
-  border-radius: 999px;
-  color: var(--ss-ink);
-  background-color: var(--ss-surface);
-  font-size: 0.75rem;
-  font-weight: 700;
 }
 
 @supports (background-color: color-mix(in srgb, white, black)) {
@@ -198,9 +259,26 @@ hr {
   align-items: center;
   gap: 0.4rem;
   padding: 0.3rem 0.65rem;
-  border-radius: 999px;
+  border-radius: 0.3rem;
   font-size: 0.75rem;
   font-weight: 750;
+}
+
+.ss-status--not-started::before,
+.ss-status--pending::before,
+.ss-status--solved::before,
+.ss-status--abandoned::before {
+  content: "○";
+  font-size: 0.65rem;
+  line-height: 1;
+}
+
+.ss-status--pending::before {
+  content: "◷";
+}
+
+.ss-status--solved::before {
+  content: "✓";
 }
 
 .ss-status--not-started {

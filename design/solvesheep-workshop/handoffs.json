@@ -3,12 +3,14 @@
   "chosen": "02-profile.html",
   "handoffs": {
     "01-training.html": {
-      "status": "sent",
+      "status": "implemented",
       "queued": false,
       "sentAt": "2026-11-02T08:13:37.613Z",
-      "startedAt": null,
-      "implementedAt": null,
-      "feature": "odd/tasks/workshop-ui-refresh.md"
+      "startedAt": "2026-11-02T09:04:59.867Z",
+      "implementedAt": "2026-11-02T09:05:19.947Z",
+      "feature": "odd/tasks/workshop-ui-refresh.md",
+      "note": "Implemented in Django with the real bundles and tag-derived sets. The loopback preview is live; this environment cannot perform a visual browser check.",
+      "previewUrl": "http://127.0.0.1:8011/training/"
     },
     "02-profile.html": {
       "status": "sent",

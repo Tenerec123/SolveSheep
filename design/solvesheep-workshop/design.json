@@ -1,26 +1,26 @@
 {
   "title": "SolveSheep warm workshop",
-  "brief": "A warm, exploratory math-practice interface for curious learners and olympiad problem solvers, with personal progress states, skill practice signals, tag-built training sets, a light/dark theme, and a native-masonry-ready problem library. New status and skill data are illustrative because persistence is outside this UI-design scope.",
+  "brief": "A warm, exploratory math-practice interface for curious learners and olympiad problem solvers, styled as a working notebook: restrained ruled paper, red margin-rule card edges, serif editorial titles, marker highlights and dashed margin notes, with personal progress states, skill practice signals, tag-built training sets, a light/dark theme (light and observatory-dark paper), and a native-masonry-ready problem library. New status and skill data are illustrative because persistence is outside this UI-design scope. Untagged problems carry an honest neutral dashed label when no difficulty or topic tag exists; no taxonomy is invented.",
   "feature": "odd/tasks/workshop-ui-refresh.md",
   "artboards": [
     {
       "file": "01-training.html",
       "title": "Training workshop",
-      "tradeoff": "Puts one active problem and its solve/give-up choice first; gives less space to browsing the full library.",
+      "tradeoff": "Puts one active problem and its solve/give-up choice first on a ruled workshop sheet, with margin-ruled cards, a marker-highlighted title, and dashed margin-note side cards; gives less space to browsing the full library.",
       "width": 1440,
       "height": 900
     },
     {
       "file": "02-profile.html",
       "title": "Practice profile",
-      "tradeoff": "Makes skill signals and personal problem states visible together; the radar chart needs careful caveats and enough real tagged attempts.",
+      "tradeoff": "Makes skill signals and personal problem states visible together on ruled notebook stock, with margin-ruled panels and marker-underlined headings; the radar chart needs careful caveats and enough real tagged attempts.",
       "width": 1440,
       "height": 900
     },
     {
       "file": "03-search-dark.html",
       "title": "Search in observatory dark mode",
-      "tradeoff": "Shows dense, scannable results and a distinctive dark theme; native grid lanes need a responsive grid fallback where unsupported.",
+      "tradeoff": "Shows dense, scannable results in the observatory-dark notebook theme, with faint ruled paper, margin-ruled result cards, and ruled-looking formula headers; native grid lanes need a responsive grid fallback where unsupported.",
       "width": 1440,
       "height": 900
     }

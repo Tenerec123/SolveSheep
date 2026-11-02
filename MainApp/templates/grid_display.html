@@ -30,21 +30,27 @@
               </div>
             </div>
             <div>
-              <span class="badge ss-tag"
-                    style="--ss-tag-color: {{ card_obj.dif_tag.color }}; margin-right: 8px;">
-                {{ card_obj.dif_tag.name }}
-              </span>
+              {% if card_obj.dif_tag %}
+                <span class="badge ss-tag"
+                      style="--ss-tag-color: {{ card_obj.dif_tag.color }}; margin-right: 8px;">
+                  {{ card_obj.dif_tag.name }}
+                </span>
+              {% else %}
+                <span class="badge ss-tag ss-tag--untagged" style="margin-right: 8px;">No difficulty tag</span>
+              {% endif %}
 
               {% for type in card_obj.type_tags.all %}
                 <span class="badge ss-tag"
                       style="--ss-tag-color: {{ type.color }};">
                   {{ type.name }}
                 </span>
+              {% empty %}
+                <span class="badge ss-tag ss-tag--untagged">No topic tags</span>
               {% endfor %}
             </div>
 
             <h5 class="card-title">{{ card_obj.title }}</h5>
-            <p class="fs-5">{{ card_obj.text|linebreaksbr|latex_truncate:100 }}</p>
+            <p class="ss-problem-text">{{ card_obj.text|linebreaksbr|latex_truncate:100 }}</p>
           </div>
         </div>
       </a>

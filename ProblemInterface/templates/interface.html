@@ -43,7 +43,7 @@
     {% if prob.author %}
         <a href="{% url 'UserInterface_problems' prob.author %}">
           <h2 class="mb-0 text-end">
-            <span class="badge bg-secondary fs-6 p-2 fst-italic">
+            <span class="badge ss-margin-note">
                 Author: {{ prob.author }}
             </span>
         </h2>
@@ -51,7 +51,7 @@
     {% endif %}
 </div>
 
-  <p class="fs-5">{{ prob.text|linebreaksbr }}</p>
+  <p class="ss-problem-text">{{ prob.text|linebreaksbr }}</p>
   <br>
 
   <button id="LikeBTN" {% if request.user.is_authenticated %} class="btn btn-success btn-lg" {% else %} class ="btn btn-secondary" disabled {% endif %}>
