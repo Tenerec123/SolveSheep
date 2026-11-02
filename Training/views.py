@@ -1,7 +1,79 @@
-from django.shortcuts import render, get_object_or_404
-from MainApp.models import Bundle, TypeTag
+from django.shortcuts import render, get_object_or_404, redirect
+from MainApp.models import Bundle, TypeTag, Problem
 from django.http import JsonResponse
 from django.db.models import F
+import random
+
+
+# T4/S4: the random picker keeps only the current pick in the Django
+# session. It is session-scoped state, never long-term profile history
+# and never an accuracy record.
+_TRAINING_PICK_SESSION_KEY = "training_pick"
+_PICK_PENDING = "pending"
+_PICK_SOLVED = "solved"
+_PICK_GIVEN_UP = "given_up"
+
+
+def _training_pick_session_key(request):
+    """Separate anonymous browser state from each authenticated account."""
+    user = getattr(request, "user", None)
+    user_id = user.pk if user and user.is_authenticated else "anonymous"
+    return f"{_TRAINING_PICK_SESSION_KEY}_{user_id}"
+
+
+def _stored_pick(request):
+    """Return the current identity's session pick only while its problem exists."""
+    key = _training_pick_session_key(request)
+    pick = request.session.get(key)
+    if not pick or not Problem.objects.filter(pk=pick.get("problem")).exists():
+        if pick:
+            request.session.pop(key, None)
+        return None
+    return pick
+
+
+def _training_context(request):
+    active_pick = _stored_pick(request)
+    if active_pick:
+        active_pick = dict(active_pick)
+        active_pick["problem_obj"] = Problem.objects.get(pk=active_pick["problem"])
+    return {
+        "active_pick": active_pick,
+        "picker_no_problems": Problem.objects.count() == 0,
+        "can_pick": not active_pick or active_pick.get("status") != _PICK_PENDING,
+    }
+
+
+def _handle_training_pick(request):
+    active_pick = _stored_pick(request)
+    if active_pick and active_pick.get("status") == _PICK_PENDING:
+        # An active problem remains pending until it is explicitly solved or abandoned.
+        return redirect("Training")
+
+    problem_ids = list(Problem.objects.values_list("pk", flat=True))
+    if not problem_ids:
+        # Truthful empty state: nothing can be picked, nothing is stored.
+        return render(request, 'training.html', {
+            "Card_objs": Bundle.objects.all(),
+            "practice_sets": [],
+            "active_pick": None,
+            "picker_no_problems": True,
+        })
+    request.session[_training_pick_session_key(request)] = {
+        "problem": random.choice(problem_ids),
+        "status": _PICK_PENDING,
+    }
+    return redirect("Training")
+
+
+def _set_pick_status(request, status):
+    pick = _stored_pick(request)
+    if pick:
+        request.session[_training_pick_session_key(request)] = {
+            "problem": pick["problem"],
+            "status": status,
+        }
+    return redirect("Training")
 
 
 def Ready_Check(request, bundle_slug):
@@ -18,6 +90,19 @@ def Ready_Check(request, bundle_slug):
 
 
 def Training_search(request):
+    # T4/S4: POST actions stay on this same route (no new URLs),
+    # CSRF-protected through the training template forms, and always
+    # answer with a normal redirect back to the Training page.
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "pick":
+            return _handle_training_pick(request)
+        if action == "solved":
+            return _set_pick_status(request, _PICK_SOLVED)
+        if action == "give_up":
+            return _set_pick_status(request, _PICK_GIVEN_UP)
+        return redirect("Training")
+
     # T4/S4: virtual practice sets derived only from existing TypeTag
     # records; every set routes to the existing Search page through its
     # current Type GET parameter (no new filters, routes, or taxonomy).
@@ -32,10 +117,12 @@ def Training_search(request):
     ]
     practice_sets = [practice_set for practice_set in practice_sets
                      if practice_set["count"] > 0]
-    return render(request, 'training.html',{
+    context = {
         "Card_objs":Bundle.objects.all(),
         "practice_sets": practice_sets,
-    })
+        **_training_context(request),
+    }
+    return render(request, 'training.html', context)
 
 def Open_bundle(request, bundle_slug):
 

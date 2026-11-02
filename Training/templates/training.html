@@ -37,6 +37,20 @@
   .ss-practice-cta:focus-visible {
     filter: brightness(0.94);
   }
+  .ss-pick-status-badge {
+    color: var(--ss-muted);
+    font-weight: 600;
+  }
+  .ss-pick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  .ss-pick-outcome {
+    color: var(--ss-muted);
+    margin-bottom: 0.75rem;
+  }
   .ss-practice-set {
     border: 1px solid var(--ss-border);
     border-inline-start: 3px solid var(--ss-brand);
@@ -50,15 +64,66 @@
 <section class="ss-training-section" aria-labelledby="ss-training-practice-title">
   <h2 id="ss-training-practice-title">Train one problem at a time</h2>
   <p class="ss-training-lede">
-    Pick a problem from the search page and work it on its own — one problem at a time,
-    without the bundle overhead.
+    Get a random problem from the database and keep it pending until you mark
+    it solved or give up.
   </p>
-  <a href="{% url 'Search' %}" class="btn btn-lg ss-practice-cta" id="ss-training-practice-cta">
-    Find a problem
-  </a>
+
+  {% if picker_no_problems %}
+    <p class="ss-training-lede mb-0">
+      No problems available yet: add a problem and it can be picked here.
+    </p>
+  {% elif active_pick %}
+    {% if active_pick.status == 'pending' %}
+      <p class="ss-training-lede mb-0">
+        Current pick:
+        {% if active_pick.problem_obj.slug %}
+          <a href="{% url 'Problem' active_pick.problem_obj.slug %}">{{ active_pick.problem_obj.title }}</a>
+        {% else %}
+          {{ active_pick.problem_obj.title }}
+        {% endif %}
+        <span class="ss-pick-status-badge">pending</span>
+      </p>
+      <div class="ss-pick-actions">
+        <form method="post" action="{% url 'Training' %}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="solved">
+          <button type="submit" class="btn ss-practice-cta">Mark as solved</button>
+        </form>
+        <form method="post" action="{% url 'Training' %}">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="give_up">
+          <button type="submit" class="btn btn-outline-secondary">Give up</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="ss-pick-outcome mb-0">
+        {% if active_pick.status == 'solved' %}
+          You marked “{{ active_pick.problem_obj.title }}” as solved.
+        {% else %}
+          You gave up on “{{ active_pick.problem_obj.title }}”.
+        {% endif %}
+        Session only: this pick is not tracked further.
+      </p>
+    {% endif %}
+  {% endif %}
+
+  {% if not picker_no_problems and can_pick %}
+  <div class="ss-pick-actions">
+    <form method="post" action="{% url 'Training' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="pick">
+      <button type="submit" class="btn btn-lg ss-practice-cta" id="ss-training-practice-cta">
+        Get a random problem
+      </button>
+    </form>
+  </div>
+  {% elif active_pick and active_pick.status == 'pending' %}
+  <p class="ss-training-lede mb-0">This problem stays pending until you solve it or give up.</p>
+  {% endif %}
   <p class="ss-training-disclaimer">
-    Your attempts are not stored yet, so no problem stays marked pending,
-    solved, or given up between visits. That tracking is future work.
+    Session only: the current pick and its pending/solved/given-up status live
+    in your browser session and disappear with it. This is not long-term
+    profile history and does not track accuracy — that tracking is future work.
   </p>
 </section>
 
