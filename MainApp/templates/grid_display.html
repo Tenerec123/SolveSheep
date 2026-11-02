@@ -13,14 +13,14 @@
 
           <div class="card-body">
             <div>
-              <span class="badge"
-                    style="box-shadow: 0 0 10px {{card_obj.dif_tag.color}}; text-shadow: 1px 1px 5px gray; background-color: {{ card_obj.dif_tag.color }}; color: white; margin-right: 8px;">
+              <span class="badge ss-tag"
+                    style="--ss-tag-color: {{ card_obj.dif_tag.color }}; margin-right: 8px;">
                 {{ card_obj.dif_tag.name }}
               </span>
 
               {% for type in card_obj.type_tags.all %}
-                <span class="badge"
-                      style="background-color: {{ type.color }}; color: white;">
+                <span class="badge ss-tag"
+                      style="--ss-tag-color: {{ type.color }};">
                   {{ type.name }}
                 </span>
               {% endfor %}

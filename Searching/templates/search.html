@@ -83,7 +83,7 @@
 
   {% if Card_objs %}
 
-    {% include 'grid_display.html' %}
+    {% include 'grid_display.html' with native_masonry=True %}
 
   {% elif range_alert %}
 

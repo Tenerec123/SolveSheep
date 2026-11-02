@@ -1,59 +1,76 @@
-<div class="masonry-grid">
-  {% block content %}  
+<div class="masonry-grid{% if native_masonry %} masonry-grid--native{% endif %}">
+  {% block content %}
   {% endblock %}
-  <div style="clear: both;"></div>
-  <br>
+  <div class="masonry-grid-clear" style="clear: both;"></div>
+  <br class="masonry-grid-break">
 </div>
 <div style="clear: both;"></div>
 <br>
 
+<style>
+  /* Search opts in; all other card-grid consumers keep their existing layout. */
+  @supports (display: grid-lanes) {
+    .masonry-grid--native {
+      display: grid-lanes;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-auto-rows: auto;
+      grid-auto-flow: unset;
+    }
+
+    .masonry-grid--native .masonry-grid-item {
+      grid-row-end: auto;
+    }
+
+    .masonry-grid--native > .masonry-grid-clear,
+    .masonry-grid--native > .masonry-grid-break {
+      display: none;
+    }
+  }
+</style>
+
+<script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
 <script>
-  function resizeMasonryGrid() {
-  requestAnimationFrame(() => {
-    const grid = document.querySelector('.masonry-grid');
-    if (!grid) return;
+  const grid = document.querySelector('.masonry-grid');
+  const nativeMasonry = Boolean(
+    grid
+    && grid.classList.contains('masonry-grid--native')
+    && window.CSS
+    && CSS.supports('display', 'grid-lanes')
+  );
 
-    const rowHeight = parseInt(getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
-    const gap = parseInt(getComputedStyle(grid).getPropertyValue('gap'));
-    const items = grid.querySelectorAll('.masonry-grid-item');
+  if (!nativeMasonry) {
+    function resizeMasonryGrid() {
+      requestAnimationFrame(() => {
+        const rowHeight = parseInt(getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+        const gap = parseInt(getComputedStyle(grid).getPropertyValue('gap'));
+        const items = grid.querySelectorAll('.masonry-grid-item');
 
-    items.forEach(item => {
-      const card = item.querySelector('.card');
-      if (!card) return;
+        items.forEach((item) => {
+          const card = item.querySelector('.card');
+          if (!card) return;
 
-      const height = card.offsetHeight;
-      const rowSpan = Math.ceil((height + gap) / rowHeight);
-      item.style.setProperty('--row-span', rowSpan);
-    });
-  });
-}
-window.MathJax = {
-  startup: {
-    pageReady: () => {
-      return MathJax.startup.defaultPageReady().then(() => {
-        resizeMasonryGrid();
+          const height = card.offsetHeight;
+          const rowSpan = Math.ceil((height + gap) / rowHeight);
+          item.style.setProperty('--row-span', rowSpan);
+        });
+      });
+    }
+
+    window.MathJax = {
+      startup: {
+        pageReady: () => window.MathJax.startup.defaultPageReady().then(() => {
+          if (grid) resizeMasonryGrid();
+        })
+      }
+    };
+
+    if (grid) {
+      imagesLoaded(grid, resizeMasonryGrid);
+      window.addEventListener('resize', resizeMasonryGrid);
+      document.addEventListener('DOMContentLoaded', resizeMasonryGrid);
+      window.addEventListener('load', () => {
+        setTimeout(resizeMasonryGrid, 100);
       });
     }
   }
-};
 </script>
-<script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
-
-<script>
-
-// Recalcular cuando carguen TODAS las imágenes
-const grid = document.querySelector('.masonry-grid');
-if (grid) {
-  imagesLoaded(grid, resizeMasonryGrid);
-}
-
-// Recalcular en resize
-window.addEventListener('resize', resizeMasonryGrid);
-document.addEventListener("DOMContentLoaded", resizeMasonryGrid);
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    resizeMasonryGrid();
-  }, 100); // 100ms = 0.1s
-});
-</script>
-

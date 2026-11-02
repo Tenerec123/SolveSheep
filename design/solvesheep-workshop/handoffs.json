@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "01-training.html",
+  "handoffs": {
+    "01-training.html": {
+      "status": "sent",
+      "queued": false,
+      "sentAt": "2026-11-02T08:13:37.613Z",
+      "startedAt": null,
+      "implementedAt": null,
+      "feature": "odd/tasks/workshop-ui-refresh.md"
+    }
+  }
+}
