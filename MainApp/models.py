@@ -1,6 +1,8 @@
+from decimal import Decimal
+
 from django.db import models
 from django.conf import settings
-from django.core.validators import RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.utils.text import slugify
 from pgvector.django import VectorField
 from sentence_transformers import SentenceTransformer
@@ -32,6 +34,25 @@ class DifTag(models.Model):
     def __str__(self):
         return str(self.name)
 
+
+class AreaTag(models.Model):
+    class Kind(models.TextChoices):
+        COGNITIVE = "cognitive", "Cognitive"
+        MATHEMATICAL = "mathematical", "Mathematical"
+
+    kind = models.CharField(max_length=16, choices=Kind.choices)
+    name = models.CharField(max_length=80)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("kind", "name"), name="mainapp_area_tag_kind_name_uniq"),
+        ]
+        ordering = ("kind", "name")
+
+    def __str__(self):
+        return f"{self.name} ({self.get_kind_display()})"
+
+
 class Problem(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=255, null=True, blank=True)
@@ -44,6 +65,12 @@ class Problem(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     type_tags = models.ManyToManyField(TypeTag, blank=True)
+    area_tags = models.ManyToManyField(
+        AreaTag,
+        through="ProblemAreaWeight",
+        related_name="problems",
+        blank=True,
+    )
     dif_tag = models.ForeignKey(DifTag, null=True, blank=True, on_delete=models.SET_NULL)
 
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_problems', blank=True)
@@ -85,6 +112,93 @@ class Problem(models.Model):
         super().delete(*args, **kwargs)
 
     
+class ProblemAreaWeight(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="area_weights")
+    area = models.ForeignKey(AreaTag, on_delete=models.CASCADE, related_name="problem_weights")
+    weight = models.DecimalField(
+        max_digits=5,
+        decimal_places=4,
+        validators=[MinValueValidator(Decimal("0.0001")), MaxValueValidator(Decimal("1.0000"))],
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("problem", "area"), name="mainapp_problem_area_uniq"),
+            models.CheckConstraint(check=models.Q(weight__gt=0, weight__lte=1), name="mainapp_area_weight_range"),
+        ]
+
+    def __str__(self):
+        return f"{self.problem}: {self.area} ({self.weight})"
+
+
+class ProblemProgress(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SOLVED = "solved", "Solved"
+        GIVEN_UP = "given_up", "Given up"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="problem_progress")
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="user_progress")
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PENDING)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("user", "problem"), name="mainapp_progress_user_problem_uniq"),
+        ]
+
+    def __str__(self):
+        return f"{self.user}: {self.problem} ({self.status})"
+
+
+class ProblemAttempt(models.Model):
+    class Outcome(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SOLVED = "solved", "Solved"
+        GIVEN_UP = "given_up", "Given up"
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="problem_attempts")
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="attempts")
+    outcome = models.CharField(max_length=16, choices=Outcome.choices)
+    attempted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("attempted_at", "pk")
+
+    def __str__(self):
+        return f"{self.user}: {self.problem} ({self.outcome})"
+
+
+class AreaRating(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="area_ratings")
+    area = models.ForeignKey(AreaTag, on_delete=models.CASCADE, related_name="user_ratings")
+    rating = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("user", "area"), name="mainapp_area_rating_user_area_uniq"),
+        ]
+
+    def __str__(self):
+        return f"{self.user}: {self.area} ({self.rating})"
+
+
+class ProblemHint(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name="hints")
+    position = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    text = models.TextField()
+
+    class Meta:
+        ordering = ("position", "pk")
+        constraints = [
+            models.UniqueConstraint(fields=("problem", "position"), name="mainapp_hint_problem_position_uniq"),
+            models.CheckConstraint(check=models.Q(position__gte=1), name="mainapp_hint_position_positive"),
+        ]
+
+    def __str__(self):
+        return f"{self.problem} — hint {self.position}"
+
+
 class Solution(models.Model):
     text = models.CharField(max_length=1000)
 
