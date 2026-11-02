@@ -1,9 +1,27 @@
 {% extends "base.html" %}
+{% load problem_areas %}
 
 {% block title %} Title1 {% endblock %}
 
 {% block content %}
 <div class="container" style="margin-left: 10px;">
+  {% problem_area_tags prob as area_tags %}
+  <div class="ss-problem-area-tags" aria-label="Problem classifications">
+    <div data-area-axis="cognitive" aria-label="Cognitive area tags">
+      {% for area_name in area_tags.cognitive %}
+        <span class="badge ss-tag">{{ area_name }}</span>
+      {% empty %}
+        <span class="badge ss-tag ss-tag--untagged">Unclassified</span>
+      {% endfor %}
+    </div>
+    <div data-area-axis="mathematical" aria-label="Mathematical area tags">
+      {% for area_name in area_tags.mathematical %}
+        <span class="badge ss-tag">{{ area_name }}</span>
+      {% empty %}
+        <span class="badge ss-tag ss-tag--untagged">Unclassified</span>
+      {% endfor %}
+    </div>
+  </div>
   {% if prob.image %}
     <img src="{{ prob.image.url }}"
          style="float: left; width: 25%; height: 100%; object-fit: cover; border-radius: 10px; margin: 10px; margin-bottom: 0;">

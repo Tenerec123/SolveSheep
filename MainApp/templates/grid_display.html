@@ -1,5 +1,5 @@
 {% extends 'masonry_grid_system.html' %}
-{% load latex_safe_truncate %}
+{% load latex_safe_truncate problem_areas %}
 {% block content %}
 
 {% for card_obj in Card_objs|slice:":80" %}
@@ -12,6 +12,23 @@
           {% endif %}
 
           <div class="card-body">
+            {% problem_area_tags card_obj as area_tags %}
+            <div class="ss-problem-area-tags" aria-label="Problem classifications">
+              <div data-area-axis="cognitive" aria-label="Cognitive area tags">
+                {% for area_name in area_tags.cognitive %}
+                  <span class="badge ss-tag">{{ area_name }}</span>
+                {% empty %}
+                  <span class="badge ss-tag ss-tag--untagged">Unclassified</span>
+                {% endfor %}
+              </div>
+              <div data-area-axis="mathematical" aria-label="Mathematical area tags">
+                {% for area_name in area_tags.mathematical %}
+                  <span class="badge ss-tag">{{ area_name }}</span>
+                {% empty %}
+                  <span class="badge ss-tag ss-tag--untagged">Unclassified</span>
+                {% endfor %}
+              </div>
+            </div>
             <div>
               <span class="badge ss-tag"
                     style="--ss-tag-color: {{ card_obj.dif_tag.color }}; margin-right: 8px;">

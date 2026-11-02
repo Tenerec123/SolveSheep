@@ -59,7 +59,9 @@ def Search(request):
         if Type_idx != 0:
             Combined_search &= Q(type_tags = Type_idx)
 
-        probs = Problem.objects.filter(Combined_search)
+        probs = Problem.objects.filter(Combined_search).prefetch_related(
+            "area_weights__area"
+        )
         bunds = Bundle.objects.filter(problems__in=probs).distinct()
 
         if Text:

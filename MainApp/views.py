@@ -8,7 +8,7 @@ def ads_txt(request):
     return HttpResponse("google.com, pub-1229341265329797, DIRECT, f08c47fec0942fa0z", content_type="text/plain")
 
 def Main(request):
-    Problems = list(Problem.objects.all())
+    Problems = list(Problem.objects.prefetch_related("area_weights__area"))
     random.shuffle(Problems)
     return render(request,"landing.html", {
         'Card_objs':Problems

@@ -10,7 +10,10 @@ def Open_problem(request, problem_slug):
     # for prob in Problem.objects.all():
     #     prob.likes_count = 0
     #     prob.save(update_fields=['likes_count'])
-    prob = get_object_or_404(Problem, slug=problem_slug)
+    prob = get_object_or_404(
+        Problem.objects.prefetch_related("area_weights__area"),
+        slug=problem_slug,
+    )
     return render(request, 'interface.html', {
         'prob':prob,
         'solutions':Solution.objects.filter(problem=prob, accepted=True),
