@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from MainApp.models import Bundle
+from MainApp.models import Bundle, TypeTag
 from django.http import JsonResponse
 from django.db.models import F
 
@@ -18,8 +18,23 @@ def Ready_Check(request, bundle_slug):
 
 
 def Training_search(request):
+    # T4/S4: virtual practice sets derived only from existing TypeTag
+    # records; every set routes to the existing Search page through its
+    # current Type GET parameter (no new filters, routes, or taxonomy).
+    practice_sets = [
+        {
+            "id": tag.id,
+            "name": tag.name,
+            "color": tag.color,
+            "count": tag.problem_set.count(),
+        }
+        for tag in TypeTag.objects.all().order_by("name")
+    ]
+    practice_sets = [practice_set for practice_set in practice_sets
+                     if practice_set["count"] > 0]
     return render(request, 'training.html',{
-        "Card_objs":Bundle.objects.all()
+        "Card_objs":Bundle.objects.all(),
+        "practice_sets": practice_sets,
     })
 
 def Open_bundle(request, bundle_slug):

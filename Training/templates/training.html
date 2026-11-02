@@ -1,5 +1,95 @@
 {% extends "base.html" %}
-{% block title %} Title1 {% endblock %}
+{% block title %} Training {% endblock %}
 {% block content %}
-{% include 'grid_display.html' %}
+{# T4/S3-S5: warm-workshop restyle using only --ss-* tokens from workshop.css. #}
+<style>
+  .ss-training-section {
+    background-color: var(--ss-surface-raised);
+    border: 1px solid var(--ss-border);
+    border-radius: 1rem;
+    box-shadow: var(--ss-shadow);
+    color: var(--ss-ink);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .ss-training-section h2 {
+    color: var(--ss-ink);
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+  .ss-training-lede {
+    color: var(--ss-muted);
+    margin-bottom: 0.75rem;
+  }
+  .ss-training-disclaimer {
+    color: var(--ss-muted);
+    font-size: 0.9rem;
+    border-left: 3px solid var(--ss-accent);
+    padding-left: 0.75rem;
+    margin: 0.75rem 0 0;
+  }
+  .ss-practice-cta {
+    color: var(--ss-brand-contrast);
+    background-color: var(--ss-brand);
+    border-color: var(--ss-brand);
+  }
+  .ss-practice-cta:hover,
+  .ss-practice-cta:focus-visible {
+    filter: brightness(0.94);
+  }
+  .ss-practice-set {
+    border: 1px solid var(--ss-border);
+    border-inline-start: 3px solid var(--ss-brand);
+  }
+  .ss-practice-count {
+    color: var(--ss-muted);
+    font-weight: 600;
+  }
+</style>
+
+<section class="ss-training-section" aria-labelledby="ss-training-practice-title">
+  <h2 id="ss-training-practice-title">Train one problem at a time</h2>
+  <p class="ss-training-lede">
+    Pick a problem from the search page and work it on its own — one problem at a time,
+    without the bundle overhead.
+  </p>
+  <a href="{% url 'Search' %}" class="btn btn-lg ss-practice-cta" id="ss-training-practice-cta">
+    Find a problem
+  </a>
+  <p class="ss-training-disclaimer">
+    Your attempts are not stored yet, so no problem stays marked pending,
+    solved, or given up between visits. That tracking is future work.
+  </p>
+</section>
+
+<section class="ss-training-section" aria-labelledby="ss-training-types-title">
+  <h2 id="ss-training-types-title">Practice sets by type</h2>
+  <p class="ss-training-lede">
+    Automatic sets built from existing problem type tags. Each opens Search
+    filtered by that same type/topic tag.
+  </p>
+  <div class="d-flex flex-wrap gap-2">
+    {% for practice_set in practice_sets %}
+      <a href="{% url 'Search' %}?Type={{ practice_set.id }}&Dif=0"
+         class="ss-tag ss-practice-set"
+         style="--ss-tag-color: {{ practice_set.color }};">
+        {{ practice_set.name }}
+        <span class="ss-practice-count">
+          {{ practice_set.count }} problem{{ practice_set.count|pluralize }}
+        </span>
+      </a>
+    {% empty %}
+      <p class="ss-training-lede mb-0">
+        No practice sets yet: tag a problem with a type and it will show up here
+        automatically.
+      </p>
+    {% endfor %}
+  </div>
+</section>
+
+{# Existing bundle list: unchanged markup and route behavior. #}
+<section aria-labelledby="ss-training-bundles-title">
+  <h2 id="ss-training-bundles-title" class="sr-only">Bundles</h2>
+  {% include 'grid_display.html' %}
+</section>
 {% endblock %}
