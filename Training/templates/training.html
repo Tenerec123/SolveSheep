@@ -102,9 +102,23 @@
         {% else %}
           You gave up on “{{ active_pick.problem_obj.title }}”.
         {% endif %}
-        Session only: this pick is not tracked further.
+        {% if not request.user.is_authenticated %}
+          Session only: this pick is not tracked further.
+        {% endif %}
       </p>
     {% endif %}
+    <div class="ss-problem-area-tags" aria-label="Problem classifications">
+      {% for group in active_pick.area_tag_groups %}
+        <div class="ss-problem-area-group" data-area-kind="{{ group.kind }}">
+          <strong>{{ group.label }}:</strong>
+          {% for tag in group.tags %}
+            <span class="badge ss-tag">{{ tag }}</span>
+          {% empty %}
+            <span class="badge ss-tag ss-tag--untagged">Unclassified</span>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
   {% endif %}
 
   {% if not picker_no_problems and can_pick %}
@@ -120,11 +134,19 @@
   {% elif active_pick and active_pick.status == 'pending' %}
   <p class="ss-training-lede mb-0">This problem stays pending until you solve it or give up.</p>
   {% endif %}
-  <p class="ss-training-disclaimer">
-    Session only: the current pick and its pending/solved/given-up status live
-    in your browser session and disappear with it. This is not long-term
-    profile history and does not track accuracy — that tracking is future work.
-  </p>
+  {% if request.user.is_authenticated %}
+    <p class="ss-training-disclaimer">
+      Your problem attempts are saved to your account and your progress is shown
+      only on your own profile. Anonymous picks remain session-only; this does
+      not calculate skill ratings or accuracy.
+    </p>
+  {% else %}
+    <p class="ss-training-disclaimer">
+      Session only: the current pick and its pending/solved/given-up status live
+      in your browser session and disappear with it. This is not long-term
+      profile history and does not track accuracy — that tracking is future work.
+    </p>
+  {% endif %}
 </section>
 
 <section class="ss-training-section" aria-labelledby="ss-training-types-title">

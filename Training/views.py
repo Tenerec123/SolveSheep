@@ -1,6 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from MainApp.models import Bundle, TypeTag, Problem
+from MainApp.models import (
+    Bundle,
+    Problem,
+    ProblemAttempt,
+    ProblemProgress,
+    TypeTag,
+)
+from MainApp.templatetags.problem_areas import get_problem_area_tags
 from django.http import JsonResponse
+from django.db import transaction
 from django.db.models import F
 import random
 
@@ -32,11 +40,29 @@ def _stored_pick(request):
     return pick
 
 
+def _area_tag_groups(problem):
+    area_tags = get_problem_area_tags(problem)
+    return [
+        {
+            "kind": "mathematical",
+            "label": "Mathematical areas",
+            "tags": area_tags["mathematical"],
+        },
+        {
+            "kind": "cognitive",
+            "label": "Cognitive areas",
+            "tags": area_tags["cognitive"],
+        },
+    ]
+
+
 def _training_context(request):
     active_pick = _stored_pick(request)
     if active_pick:
         active_pick = dict(active_pick)
-        active_pick["problem_obj"] = Problem.objects.get(pk=active_pick["problem"])
+        problem = Problem.objects.get(pk=active_pick["problem"])
+        active_pick["problem_obj"] = problem
+        active_pick["area_tag_groups"] = _area_tag_groups(problem)
     return {
         "active_pick": active_pick,
         "picker_no_problems": Problem.objects.count() == 0,
@@ -59,20 +85,70 @@ def _handle_training_pick(request):
             "active_pick": None,
             "picker_no_problems": True,
         })
-    request.session[_training_pick_session_key(request)] = {
-        "problem": random.choice(problem_ids),
-        "status": _PICK_PENDING,
-    }
+    problem_id = random.choice(problem_ids)
+    pick = {"problem": problem_id, "status": _PICK_PENDING}
+    user = getattr(request, "user", None)
+    if user and user.is_authenticated:
+        with transaction.atomic():
+            attempt = ProblemAttempt.objects.create(
+                user=user,
+                problem_id=problem_id,
+                outcome=ProblemAttempt.Outcome.PENDING,
+            )
+            ProblemProgress.objects.update_or_create(
+                user=user,
+                problem_id=problem_id,
+                defaults={"status": ProblemProgress.Status.PENDING},
+            )
+        pick["attempt"] = attempt.pk
+
+    request.session[_training_pick_session_key(request)] = pick
     return redirect("Training")
 
 
 def _set_pick_status(request, status):
     pick = _stored_pick(request)
-    if pick:
-        request.session[_training_pick_session_key(request)] = {
-            "problem": pick["problem"],
-            "status": status,
-        }
+    if pick and pick.get("status") == _PICK_PENDING:
+        user = getattr(request, "user", None)
+        if user and user.is_authenticated:
+            with transaction.atomic():
+                attempt = None
+                attempt_id = pick.get("attempt")
+                if attempt_id:
+                    attempt = ProblemAttempt.objects.filter(
+                        pk=attempt_id,
+                        user=user,
+                        problem_id=pick["problem"],
+                        outcome=ProblemAttempt.Outcome.PENDING,
+                    ).first()
+                else:
+                    # Preserve a pending session created before account
+                    # persistence was deployed, without trusting its owner.
+                    attempt = ProblemAttempt.objects.create(
+                        user=user,
+                        problem_id=pick["problem"],
+                        outcome=ProblemAttempt.Outcome.PENDING,
+                    )
+
+                if attempt:
+                    attempt.outcome = status
+                    attempt.save(update_fields=["outcome"])
+                    latest_attempt_id = ProblemAttempt.objects.filter(
+                        user=user, problem_id=pick["problem"]
+                    ).order_by("-attempted_at", "-pk").values_list("pk", flat=True).first()
+                    if latest_attempt_id == attempt.pk:
+                        ProblemProgress.objects.update_or_create(
+                            user=user,
+                            problem_id=pick["problem"],
+                            defaults={"status": status},
+                        )
+                    pick["status"] = status
+            if not pick.get("attempt") and attempt:
+                pick["attempt"] = attempt.pk
+        else:
+            pick["status"] = status
+
+        request.session[_training_pick_session_key(request)] = pick
     return redirect("Training")
 
 
@@ -132,7 +208,9 @@ def Open_bundle(request, bundle_slug):
     bund = get_object_or_404(Bundle, slug=bundle_slug)
     return render(request, 'bundle_interface.html', {
         'bund':bund,
-        'Card_objs':bund.problems.all().order_by("dif_tag", "title")
+        'Card_objs':bund.problems.all().order_by("dif_tag", "title").prefetch_related(
+            "area_weights__area"
+        )
     })
 
 def Like_Unlike_Bundle(request, bundle_slug):

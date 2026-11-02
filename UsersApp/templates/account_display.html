@@ -135,11 +135,25 @@
                 <li><span class="ss-status ss-status--solved"><i class="bi bi-check-circle" aria-hidden="true"></i>Solved</span></li>
                 <li><span class="ss-status ss-status--abandoned"><i class="bi bi-x-circle" aria-hidden="true"></i>Given up</span></li>
             </ul>
-            <p class="ss-profile-notice">
-                These states are a visual convention only. SolveSheep does not yet
-                record per-user attempt status, so these labels do not reflect which
-                problems are pending, solved or given up for your account.
-            </p>
+            {% if is_profile_owner %}
+                {% if problem_progress %}
+                    <ul class="ss-profile-legend-list" id="ss-profile-progress-list">
+                        {% for progress in problem_progress %}
+                            <li data-problem-status="{{ progress.status }}">
+                                {{ progress.problem.title }} — {{ progress.get_status_display }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="ss-profile-empty" id="ss-profile-progress-empty">
+                        <strong>No started problems yet.</strong>
+                        Problems will appear here after you pick one in Training.
+                    </p>
+                {% endif %}
+                <p class="ss-profile-notice">Your problem progress is private to your account.</p>
+            {% else %}
+                <p class="ss-profile-notice">Personal problem progress is visible only to its owner.</p>
+            {% endif %}
         </section>
 
         <section class="ss-profile-panel" aria-labelledby="ss-profile-skill-title">
@@ -147,16 +161,11 @@
                 <i class="bi bi-graph-up" aria-hidden="true"></i>Skills &amp; accuracy
             </h2>
             <div class="ss-profile-empty">
-                <strong>No tracked attempt data yet.</strong>
+                <strong>Accuracy is not calculated.</strong>
                 <p>
-                    Skill levels by difficulty and topic, and accuracy per skill, can
-                    only be shown once attempts are tracked. Accepted solutions alone
-                    do not record all attempts, so they cannot provide an accuracy
-                    denominator. This panel stays empty instead of guessing.
-                </p>
-                <p>
-                    Percentages and the skill web will appear here only when attempt
-                    tracking makes them meaningful.
+                    Training attempts are saved, but no per-skill rating or accuracy
+                    formula is implemented. No percentages or skill web are shown
+                    until those metrics can be calculated from meaningful data.
                 </p>
             </div>
         </section>

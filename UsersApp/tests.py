@@ -3,7 +3,7 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.core import signing
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 User = get_user_model()
@@ -62,3 +62,41 @@ class RegisterTests(TestCase):
         message = send_email.call_args.args[0]
         self.assertEqual(message["to"], user.email)
         self.assertIn("activate", message["html"].lower())
+
+
+class OwnerProgressVisibilityTests(TestCase):
+    def test_problem_progress_is_visible_only_on_its_owners_profile(self):
+        from MainApp.models import Problem, ProblemProgress
+
+        owner = User.objects.create_user("owner@example.com", "owner", "sturdy-Pass9!")
+        problem = Problem.objects.bulk_create([
+            Problem(title="Private progress item", slug="private-progress-item")
+        ])[0]
+        ProblemProgress.objects.create(user=owner, problem=problem, status="solved")
+
+        self.client.force_login(owner)
+        owner_response = self.client.get(
+            reverse("UserInterface_problems", args=[owner.username])
+        )
+        self.assertContains(owner_response, 'data-problem-status="solved"')
+        self.assertContains(owner_response, "Private progress item")
+        self.assertContains(owner_response, "Solved")
+
+        other_user = User.objects.create_user(
+            "other@example.com", "other", "sturdy-Pass9!"
+        )
+        other_client = Client()
+        other_client.force_login(other_user)
+        other_response = other_client.get(
+            reverse("UserInterface_problems", args=[owner.username])
+        )
+        self.assertEqual(other_response.status_code, 200)
+        self.assertNotContains(other_response, "data-problem-status=")
+        self.assertNotContains(other_response, "Private progress item")
+
+        public_response = Client().get(
+            reverse("UserInterface_problems", args=[owner.username])
+        )
+        self.assertEqual(public_response.status_code, 200)
+        self.assertNotContains(public_response, "data-problem-status=")
+        self.assertNotContains(public_response, "Private progress item")

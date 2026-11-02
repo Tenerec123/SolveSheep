@@ -1,10 +1,10 @@
 import re
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
-from MainApp.models import Problem, TypeTag, Bundle
+from MainApp.models import Problem, ProblemProgress, TypeTag, Bundle
 from UsersApp.models import User
 
 
@@ -230,6 +230,51 @@ class TrainingRandomPickerTests(TestCase):
         self.assertIn("Get a random problem", content)
 
 
+class TrainingLearningProgressTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="learning-progress@example.com",
+            username="learning-progress",
+            password="sturdy-Pass9!",
+        )
+        self.problem = _make_problem("Persisted training problem")
+
+    def test_authenticated_outcome_persists_in_a_new_session(self):
+        self.client.force_login(self.user)
+        with patch("Training.views.random.choice", return_value=self.problem.pk):
+            self.client.post(reverse("Training"), {"action": "pick"})
+        self.client.post(reverse("Training"), {"action": "solved"})
+
+        new_session = Client()
+        new_session.force_login(self.user)
+        response = new_session.get(reverse("UserInterface_problems", args=[self.user.username]))
+
+        progress = ProblemProgress.objects.filter(user=self.user, problem=self.problem).first()
+        self.assertIsNotNone(progress, "authenticated outcomes must persist beyond the training session")
+        self.assertEqual(progress.status, "solved")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Persisted training problem")
+
+    def test_retries_are_retained_and_progress_tracks_the_latest_exact_attempt(self):
+        from MainApp.models import ProblemAttempt, ProblemProgress
+
+        self.client.force_login(self.user)
+        with patch("Training.views.random.choice", return_value=self.problem.pk):
+            self.client.post(reverse("Training"), {"action": "pick"})
+            self.client.post(reverse("Training"), {"action": "solved"})
+            self.client.post(reverse("Training"), {"action": "pick"})
+            self.client.post(reverse("Training"), {"action": "give_up"})
+
+        attempts = list(
+            ProblemAttempt.objects.filter(user=self.user, problem=self.problem).order_by("pk")
+        )
+        self.assertEqual([attempt.outcome for attempt in attempts], ["solved", "given_up"])
+        self.assertEqual(
+            ProblemProgress.objects.get(user=self.user, problem=self.problem).status,
+            attempts[-1].outcome,
+        )
+
+
 class TrainingBundleListTests(TestCase):
     """T4/S4: the existing bundle list keeps rendering as before."""
 
@@ -246,3 +291,129 @@ class TrainingBundleListTests(TestCase):
         content = response.content.decode()
         self.assertIn("Warm bundle", content)
         self.assertIn(reverse("Bundle", args=["warm-bundle"]), content)
+
+
+class LearningDataTrainingFlowTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="learner@example.com", username="learner", password="secret"
+        )
+
+    def _pick(self, client, problem, follow=True):
+        with patch("Training.views.random.choice", return_value=problem.pk):
+            return client.post(reverse("Training"), {"action": "pick"}, follow=follow)
+
+    def test_authenticated_outcomes_persist_and_are_visible_only_to_the_owner(self):
+        from MainApp.models import ProblemAttempt, ProblemProgress
+
+        problem = _make_problem("Private progress problem")
+        owner = self.client
+        owner.force_login(self.user)
+        self._pick(owner, problem)
+        self.assertEqual(
+            ProblemAttempt.objects.get(user=self.user, problem=problem).outcome,
+            ProblemAttempt.Outcome.PENDING,
+        )
+
+        owner.post(reverse("Training"), {"action": "solved"})
+        self.assertEqual(
+            ProblemProgress.objects.get(user=self.user, problem=problem).status,
+            ProblemProgress.Status.SOLVED,
+        )
+        self.assertEqual(
+            ProblemAttempt.objects.get(user=self.user, problem=problem).outcome,
+            ProblemAttempt.Outcome.SOLVED,
+        )
+
+        # A new authenticated session reads the durable profile record.
+        from django.test import Client
+
+        new_session = Client()
+        new_session.force_login(self.user)
+        owner_profile = new_session.get(
+            reverse("UserInterface_problems", args=[self.user.username])
+        )
+        self.assertEqual(owner_profile.status_code, 200)
+        self.assertContains(owner_profile, 'data-problem-status="solved"')
+
+        public_profile = Client().get(
+            reverse("UserInterface_problems", args=[self.user.username])
+        )
+        self.assertEqual(public_profile.status_code, 200)
+        self.assertNotContains(public_profile, 'data-problem-status="solved"')
+        self.assertIsNone(public_profile.context.get("problem_progress"))
+
+    def test_retries_create_distinct_attempts_and_update_latest_progress(self):
+        from MainApp.models import ProblemAttempt, ProblemProgress
+
+        problem = _make_problem("Retryable problem")
+        self.client.force_login(self.user)
+        self._pick(self.client, problem)
+        self.client.post(reverse("Training"), {"action": "solved"})
+        self._pick(self.client, problem)
+        self.client.post(reverse("Training"), {"action": "give_up"})
+
+        self.assertEqual(
+            list(ProblemAttempt.objects.filter(user=self.user, problem=problem).values_list(
+                "outcome", flat=True
+            )),
+            [ProblemAttempt.Outcome.SOLVED, ProblemAttempt.Outcome.GIVEN_UP],
+        )
+        self.assertEqual(
+            ProblemProgress.objects.get(user=self.user, problem=problem).status,
+            ProblemProgress.Status.GIVEN_UP,
+        )
+
+    def test_owner_profile_shows_not_started_fallback_without_a_progress_row(self):
+        problem = _make_problem("Not started problem")
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse("UserInterface_problems", args=[self.user.username])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No started problems yet")
+        self.assertNotContains(response, f'data-problem-status="not-started"')
+
+    def test_training_pick_displays_top_two_tags_per_axis_in_weight_order(self):
+        from MainApp.models import AreaTag, ProblemAreaWeight
+
+        problem = _make_problem("Weighted problem")
+        algebra = AreaTag.objects.create(kind="mathematical", name="Algebra")
+        number_theory = AreaTag.objects.create(kind="mathematical", name="Number theory")
+        geometry = AreaTag.objects.create(kind="mathematical", name="Geometry")
+        proof = AreaTag.objects.create(kind="cognitive", name="Proof")
+        visualization = AreaTag.objects.create(kind="cognitive", name="Visualization")
+        for area, weight in (
+            (algebra, "0.5000"),
+            (number_theory, "0.3000"),
+            (geometry, "0.2000"),
+            (proof, "0.7000"),
+            (visualization, "0.3000"),
+        ):
+            ProblemAreaWeight.objects.create(problem=problem, area=area, weight=weight)
+
+        response = self._pick(self.client, problem)
+
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode()
+        self.assertLess(html.index("Algebra"), html.index("Number theory"))
+        self.assertLess(html.index("Proof"), html.index("Visualization"))
+        self.assertNotIn("Geometry", html)
+        for tag_name in ("Algebra", "Number theory", "Proof", "Visualization"):
+            self.assertIn(f'<span class="badge ss-tag">{tag_name}</span>', html)
+        area_markup = html.split('<div class="ss-problem-area-tags"', 1)[1].split(
+            "</section>", 1
+        )[0]
+        self.assertNotIn("%", area_markup)
+        self.assertNotIn("0.5000", area_markup)
+        self.assertNotIn("0.7000", area_markup)
+
+    def test_training_pick_shows_unclassified_for_empty_axes(self):
+        problem = _make_problem("Problem with no area tags")
+
+        response = self._pick(self.client, problem)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode().count("Unclassified"), 2)

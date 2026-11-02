@@ -123,38 +123,44 @@ def Activate(request, token):
     messages.success(request, "Your account is now active. Welcome!")
     return redirect('Main')
 
+def _account_profile_context(request, profile_user, card_objects):
+    is_profile_owner = (
+        request.user.is_authenticated and request.user.pk == profile_user.pk
+    )
+    context = {
+        "profile_user": profile_user,
+        "Card_objs": card_objects,
+        "is_profile_owner": is_profile_owner,
+    }
+    if is_profile_owner:
+        context["problem_progress"] = (
+            ProblemProgress.objects.filter(user=profile_user)
+            .select_related("problem")
+            .order_by("-updated_at", "pk")
+        )
+    return context
+
+
 def User_Interface_Problems(request, username):
     user = User.objects.get(username=username)
-    problems = Problem.objects.filter(author=user)
+    problems = Problem.objects.filter(author=user).prefetch_related("area_weights__area")
     
-    return render(request,"account_display.html", {
-        "profile_user":user,
-        "Card_objs":problems,
-    })
+    return render(request, "account_display.html", _account_profile_context(request, user, problems))
 
 def User_Interface_Bundles(request, username):
     user = User.objects.get(username=username)
     bundles = Bundle.objects.filter(author=user)
     
-    return render(request,"account_display.html", {
-        "profile_user":user,
-        "Card_objs":bundles,
-    })
+    return render(request, "account_display.html", _account_profile_context(request, user, bundles))
 
 def User_Interface_Solutions(request, username):
     user = User.objects.get(username=username)
     solutions = Solution.objects.filter(author=user)
     
-    return render(request,"account_display.html", {
-        "profile_user":user,
-        "Card_objs":solutions,
-    })
+    return render(request, "account_display.html", _account_profile_context(request, user, solutions))
 
 def User_Interface_Likes(request, username):
     user = User.objects.get(username=username)
-    liked_problems = user.liked_problems.all()
+    liked_problems = user.liked_problems.prefetch_related("area_weights__area")
     
-    return render(request,"account_display.html", {
-        "profile_user":user,
-        "Card_objs":liked_problems,
-    })
+    return render(request, "account_display.html", _account_profile_context(request, user, liked_problems))

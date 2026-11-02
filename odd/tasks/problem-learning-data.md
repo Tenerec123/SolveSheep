@@ -31,8 +31,8 @@ Checks: migration is additive; existing Problem fields/preview rows and authenti
 
 ## Tasks
 - T1 — Add weighted area, per-user progress/attempt, per-area Elo, and ordered Hint models with admin/data validation and migration; S1–S5; HC interactive Pi writer; done; commit: `881130b`.
-- T2a — Render only the top two weighted area tags per axis on problem cards, Search, and Problem detail; S1; parent inline integration; in_progress; commit: pending.
-- T2b — Persist authenticated Training attempts, show owner-only per-user progress, and display top-two labels on the active Training pick; S1–S2, S5; parent inline integration; pending; commit: pending.
+- T2a — Render only the top two weighted area tags per axis on problem cards, Search, and Problem detail; S1; parent inline integration; done; commit: `52f1f69`.
+- T2b — Persist authenticated Training attempts, show owner-only per-user progress, and display top-two labels on the active Training pick; S1–S2, S5; parent inline integration; in_progress; commit: pending.
 - T3 — Add ordered hint admin/list behavior and regression tests for all new public model flows; S1–S5; dropped; covered by T1; commit: not applicable.
 - T4 — Run focused tests, full suite, migration checks, inspect diff and reconcile this document/mirror/todo; S1–S5; inline; pending; commit: pending.
 
@@ -61,3 +61,5 @@ Checks: migration is additive; existing Problem fields/preview rows and authenti
 - L23 — Parent added the authenticated non-owner case to `OwnerProgressVisibilityTests`. `.venv/bin/python manage.py test Training.tests UsersApp.tests Searching.test_area_tag_display.AreaTagDisplayTests --verbosity 2` passed: 28 tests, 4.442s, OK; `git diff --check` exited 0 (only existing CRLF-to-LF warnings). No application migration was run. T2 is verified at the focused level; parent review and commit/assessment remain. Risk: item 2 (owner-private progress visibility).
 - L24 — Before committing T2, parent split its independent concerns into T2a (weighted tags on shared problem-card/search/detail surfaces) and T2b (Training tags plus durable per-user progress). This keeps item 2 privacy changes in their own work-unit commit for focused review; commit T2a first, then T2b. Both remain on `feature/workshop-ui-refresh` per the chosen delivery strategy.
 - L25 — Stage only the current T2a code/tests and this feature task document; preserve and exclude unrelated pre-existing workshop UI hunks in shared templates, CSS, designs, `Searching/tests.py`, and `odd/tasks/workshop-ui-refresh.md`. No push, PR, or merge.
+- L26 — Committed T2a as `52f1f69` (`feat(ui): show top weighted area tags`), eight files, 216 insertions/4 deletions. The focused T2 suite had passed 28 tests and parent `git diff --check` was clean. `gentle_review assess` on `HEAD^..HEAD` reported medium risk, `reviewDue=false` (`under_budget`), writer self-verification required, no independent verifier; no review lineage started. Risk: none.
+- L27 — T2b is now active as the isolated high-risk item 2 slice (per-user progress privacy); stage/commit only Training progress and owner-private profile changes, then run ASSESS on its own commit.
